@@ -26,21 +26,17 @@ If neither flag is provided, ask the user which mode they want.
    - Extract: topic, audience, tone, language, slide count, goals, style preferences.
    - If the user prompt is under-specified, ask clarifying questions (audience, slide count, language, goals).
 
-3. **Inspect project context** (if applicable)
-   - Check for existing `CLAUDE.md` — follow any project-specific rules found there.
-   - Check for `examples/` — use as style/template references.
-
-4. **Draft the plan**
+3. **Draft the plan**
    - Follow the structure in [references/planning-template.md](references/planning-template.md).
    - For each slide: specify the key point, supporting bullets, and visual element type.
    - Map content from `resources/` to specific slides — cite which resource informs which slide.
    - Include visual/layout guidelines (colors, fonts) — use defaults from [references/design-system.md](references/design-system.md) unless the user specifies otherwise.
 
-5. **Save to `PLANNING.md`** in the working directory.
+4. **Save to `PLANNING.md`** in the working directory.
 
-6. **Present the plan** to the user for review. Summarize slide count, structure, and key decisions. Ask for approval or revision feedback.
+5. **Present the plan** to the user for review. Summarize slide count, structure, and key decisions. Ask for approval or revision feedback.
 
-7. **Stop.** Do NOT proceed to generation.
+6. **Stop.** Do NOT proceed to generation.
 
 ---
 
@@ -56,7 +52,6 @@ If neither flag is provided, ask the user which mode they want.
 3. **Read design references**
    - Load [references/design-system.md](references/design-system.md) for color palette, typography, animations.
    - Load [references/slide-patterns.md](references/slide-patterns.md) for HTML patterns matching each slide type.
-   - If `examples/` folder exists, reference those HTML files for style consistency.
 
 4. **Generate slides**
    - Create `presentation/slides/` directory.
