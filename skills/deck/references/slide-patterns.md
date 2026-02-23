@@ -34,6 +34,14 @@ Every slide HTML follows this skeleton:
       background-color: #e0e0e0;
       font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
     }
+    html, body {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+      display: none;
+    }
     .slide {
       width: 1280px; height: 720px;
       background-color: #F7F4EF;
