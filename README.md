@@ -32,13 +32,11 @@ To use a skill, copy the skill directory into your `skills/`:
 **Claude Code**
 
 ```bash
-# Copy
 cp -r skills/deck ~/.claude/skills/deck
 ```
 
 **Codex Cli and others**
 
 ```bash
-# Copy
 cp -r skills/deck ~/.agents/skills/deck
 ```
