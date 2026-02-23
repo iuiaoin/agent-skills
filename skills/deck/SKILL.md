@@ -1,12 +1,6 @@
 ---
 name: deck
-description: >
-  Generate high-quality HTML presentation decks with a strict two-stage workflow.
-  Manually invoked only — never auto-trigger. Use when the user runs:
-  (1) `/deck --plan` to create a deck outline and save it to PLANNING.md,
-  (2) `/deck --generate` to produce final HTML slides from an approved PLANNING.md.
-  Supports technical sharing, architecture reviews, strategy decks, research summaries,
-  pitch decks, and team updates. Output is standalone HTML slides (1280x720, 16:9).
+description: Generate high-quality HTML presentation decks with a strict two-stage workflow; manually invoked only when the user runs `/deck --plan` (create PLANNING.md) or `/deck --generate` (produce final slides from approved PLANNING.md), supporting technical sharing, architecture reviews, strategy decks, research summaries, pitch decks, and team updates as standalone 1280x720 (16:9) HTML slides.
 ---
 
 # Deck — Presentation Deck Generator
