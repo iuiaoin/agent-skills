@@ -4,7 +4,7 @@ A collection of reusable skills for AI coding agents (Claude Code, etc.). Each s
 
 ## Skills
 
-### [deck](skills/deck/)
+### [deck](https://github.com/iuiaoin/agent-skills/tree/main/skills/deck)
 
 HTML presentation deck generator with a strict two-stage workflow:
 
