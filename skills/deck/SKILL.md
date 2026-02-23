@@ -70,7 +70,12 @@ If neither flag is provided, ask the user which mode they want.
    - `presentation/slides/PRESENTATION_SUMMARY.md` — deck overview, structure, design specs.
    - `presentation/slides/PRESENTATION_SCRIPT.md` — speaker notes per slide (2-4 sentences each).
 
-7. **Summary** — Report what was generated: file count, total slides, output location, and how to view (open `presentation/index.html` in a browser).
+7. **Open & summarize**
+   - Open the presentation in the default browser:
+     - macOS: `open presentation/index.html`
+     - Linux: `xdg-open presentation/index.html`
+     - Windows: `start presentation/index.html`
+   - Then report what was generated: file count, total slides, and output location.
 
 ---
 
