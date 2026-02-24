@@ -31,7 +31,7 @@ skill-name/
 
 > 💡 Works best with Claude Code and Opus 4.6 model for highest quality output.
 
-To use a skill, copy the skill directory into your `skills/`:
+To use a skill, copy the skill directory into your `skills/`, taking the deck skill as an example:
 
 **Claude Code**
 
