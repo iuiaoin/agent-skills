@@ -29,6 +29,8 @@ skill-name/
 
 ## Installation
 
+> 💡 Works best with Claude Code and Opus 4.6 model for highest quality output.
+
 To use a skill, copy the skill directory into your `skills/`:
 
 **Claude Code**
