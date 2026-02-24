@@ -13,7 +13,7 @@ HTML presentation deck generator with a strict two-stage workflow:
 
 Supports technical sharing talks, architecture reviews, strategy decks, research summaries, pitch decks, and team updates. Outputs pure HTML/CSS/JS with no build tools required.
 
-📎 [Sample repo](https://github.com/iuiaoin/deck-sample) · [Live demo](https://iuiaoin.github.io/deck-sample/)
+📎 [Sample repo](https://github.com/iuiaoin/deck-transformer) · [Live demo](https://iuiaoin.github.io/deck-transformer/)
 
 ## Skill Structure
 
