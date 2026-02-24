@@ -2,6 +2,8 @@
 
 A collection of reusable skills for AI coding agents (Claude Code, etc.). Each skill is a self-contained package that extends an agent's capabilities with specialized workflows, domain knowledge, and bundled resources.
 
+> 💡 Works best with Claude Code and Opus 4.6 model for highest quality output.
+
 ## Skills
 
 ### [deck](https://github.com/iuiaoin/agent-skills/tree/main/skills/deck)
@@ -28,8 +30,6 @@ skill-name/
 ```
 
 ## Installation
-
-> 💡 Works best with Claude Code and Opus 4.6 model for highest quality output.
 
 To use a skill, copy the skill directory into your `skills/`, taking the deck skill as an example:
 
