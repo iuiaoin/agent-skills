@@ -67,6 +67,7 @@
         .presentation-mode {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #000; z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center;
+            outline: none;
         }
         .presentation-mode:fullscreen, .presentation-mode:-webkit-full-screen { width: 100vw; height: 100vh; }
         .presentation-slide { width: 1280px; height: 720px; border: none; transform-origin: center center; }
@@ -113,7 +114,7 @@
         </header>
         <div class="preview-container list-view" id="preview-container"></div>
     </div>
-    <div class="presentation-mode" id="presentation-mode">
+    <div class="presentation-mode" id="presentation-mode" tabindex="-1">
         <div class="presentation-slide-container">
             <iframe id="presentation-slide" class="presentation-slide" src="" frameborder="0"></iframe>
         </div>
@@ -191,6 +192,7 @@
             presentationMode.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             updateSlide();
+            presentationMode.focus();
             requestFullscreen();
         }
         function requestFullscreen() {
@@ -251,12 +253,21 @@
         document.addEventListener('fullscreenchange', handleFullscreenChange);
         document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
         presentationMode.addEventListener('mousemove', showControlsTemporarily);
+        window.addEventListener('blur', () => {
+            if (presentationMode.style.display === 'flex') {
+                setTimeout(() => {
+                    if (presentationMode.style.display === 'flex') {
+                        presentationMode.focus();
+                    }
+                }, 0);
+            }
+        });
         document.addEventListener('keydown', (e) => {
             if (presentationMode.style.display === 'flex') {
-                if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'n') { nextSlide(); showControlsTemporarily(); }
-                else if (e.key === 'ArrowLeft' || e.key === 'p') { prevSlide(); showControlsTemporarily(); }
+                if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'n') { nextSlide(); }
+                else if (e.key === 'ArrowLeft' || e.key === 'p') { prevSlide(); }
                 else if (e.key === 'Escape') { isFullscreen ? exitFullscreenFn() : exitPresentation(); }
-                else if (e.key === 'f' || e.key === 'F') { toggleFullscreen(); showControlsTemporarily(); }
+                else if (e.key === 'f' || e.key === 'F') { toggleFullscreen(); }
             }
         });
         window.addEventListener('load', initViewer);
