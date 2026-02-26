@@ -100,7 +100,7 @@ Important file formats and folders:
 
 I already have a practice project that the skill should learn from / reference:
 
-- /Users/lixiaoli/Projects/presentation-deck-builder
+- /Users/lixiaoli/Projects/deck-transformer
 
 In that project:
 
