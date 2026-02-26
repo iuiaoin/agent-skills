@@ -1,6 +1,6 @@
 ---
 name: deck
-description: Generate high-quality HTML presentation decks with a strict two-stage workflow; manually invoked only when the user runs `/deck --plan` (create PLANNING.md), `/deck --generate` (produce final slides from approved PLANNING.md), or `/deck --export pptx` (export generated slides to PPTX format), supporting technical sharing, architecture reviews, strategy decks, research summaries, pitch decks, and team updates as standalone 1280x720 (16:9) HTML slides.
+description: Generate high-quality HTML presentation decks with a strict two-stage workflow; manually invoked only when the user runs `/deck --plan` (create PLANNING.md), `/deck --generate` (produce final slides from approved PLANNING.md), and optionally `/deck --export pptx` (export generated slides to PPTX format), supporting technical sharing, architecture reviews, strategy decks, research summaries, pitch decks, and team updates as standalone 1280x720 (16:9) HTML slides.
 ---
 
 # Deck — Presentation Deck Generator

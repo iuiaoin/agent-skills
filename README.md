@@ -12,6 +12,9 @@ HTML presentation deck generator with a strict two-stage workflow:
 
 - **`/deck --plan <prompt>`** — Analyze user prompt and reference materials in `resources/`, produce a slide-by-slide outline saved to `PLANNING.md`
 - **`/deck --generate`** — Generate standalone HTML slides (1280x720, 16:9) from the approved plan, with a built-in presentation viewer
+
+Bonus:
+
 - **`/deck --export pptx [--scale N]`** — Export generated slides to a PPTX file (renders each slide as a high-quality image via headless Chromium, default 3x resolution)
 
 Supports technical sharing talks, architecture reviews, strategy decks, research summaries, pitch decks, and team updates. Outputs pure HTML/CSS/JS with no build tools required.
