@@ -7,18 +7,26 @@ import PptxGenJS from 'pptxgenjs';
 
 const SLIDE_WIDTH = 1280;
 const SLIDE_HEIGHT = 720;
-const DEVICE_SCALE_FACTOR = 2; // 2x for retina-quality output
+const DEFAULT_SCALE_FACTOR = 3;
 
 function parseArgs() {
   const args = process.argv.slice(2);
   if (args.length < 1) {
-    console.error('Usage: node export-pptx.mjs <presentation-dir> [output-filename]');
-    console.error('Example: node export-pptx.mjs ./presentation deck');
+    console.error('Usage: node export-pptx.mjs <presentation-dir> [output-filename] [--scale N]');
+    console.error('Example: node export-pptx.mjs ./presentation deck --scale 3');
     process.exit(1);
   }
+
+  let scaleFactor = DEFAULT_SCALE_FACTOR;
+  const scaleIdx = args.indexOf('--scale');
+  if (scaleIdx !== -1) {
+    scaleFactor = parseInt(args[scaleIdx + 1]) || DEFAULT_SCALE_FACTOR;
+    args.splice(scaleIdx, 2);
+  }
+
   const presentationDir = resolve(args[0]);
   const outputName = args[1] || 'deck';
-  return { presentationDir, outputName };
+  return { presentationDir, outputName, scaleFactor };
 }
 
 async function discoverSlides(presentationDir) {
@@ -46,7 +54,7 @@ async function discoverSlides(presentationDir) {
   return slideFiles.map(f => join(slidesDir, f));
 }
 
-async function renderSlides(slidePaths, tempDir) {
+async function renderSlides(slidePaths, tempDir, scaleFactor) {
   await mkdir(tempDir, { recursive: true });
 
   const browser = await puppeteer.launch({
@@ -61,7 +69,7 @@ async function renderSlides(slidePaths, tempDir) {
     await page.setViewport({
       width: SLIDE_WIDTH,
       height: SLIDE_HEIGHT,
-      deviceScaleFactor: DEVICE_SCALE_FACTOR,
+      deviceScaleFactor: scaleFactor,
     });
 
     for (let i = 0; i < slidePaths.length; i++) {
@@ -131,13 +139,14 @@ async function cleanup(tempDir) {
 }
 
 async function main() {
-  const { presentationDir, outputName } = parseArgs();
+  const { presentationDir, outputName, scaleFactor } = parseArgs();
   const tempDir = join(presentationDir, '.export-temp');
   const outputFile = join(presentationDir, `${outputName}.pptx`);
 
   console.log('Exporting presentation to PPTX...');
   console.log(`  Source: ${presentationDir}`);
   console.log(`  Output: ${outputFile}`);
+  console.log(`  Scale:  ${scaleFactor}x`);
 
   try {
     console.log('\n[1/3] Discovering slides...');
@@ -145,7 +154,7 @@ async function main() {
     console.log(`  Found ${slidePaths.length} slides`);
 
     console.log('\n[2/3] Rendering slides to images...');
-    const imagePaths = await renderSlides(slidePaths, tempDir);
+    const imagePaths = await renderSlides(slidePaths, tempDir, scaleFactor);
 
     console.log('\n[3/3] Building PPTX file...');
     await buildPptx(imagePaths, outputFile, outputName);

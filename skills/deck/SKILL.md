@@ -11,7 +11,7 @@ Parse the invocation to determine mode:
 
 - **`/deck --plan [prompt]`** — Planning mode. Create deck outline, save to `PLANNING.md`, present for review. **Do NOT generate HTML.**
 - **`/deck --generate [optional instructions]`** — Generation mode. Produce final HTML slides from approved `PLANNING.md`. **Refuse if `PLANNING.md` is missing.**
-- **`/deck --export pptx`** — Export mode. Convert generated HTML slides into a PPTX file. **Refuse if `presentation/slides/` is missing or contains no slide HTML files.**
+- **`/deck --export pptx [--scale N]`** — Export mode. Convert generated HTML slides into a PPTX file. Optional `--scale N` controls image resolution multiplier (default 3). **Refuse if `presentation/slides/` is missing or contains no slide HTML files.**
 
 If neither flag is provided, ask the user which mode they want.
 
@@ -92,11 +92,12 @@ If neither flag is provided, ask the user which mode they want.
    - The skill's `scripts/` directory is located relative to this SKILL.md file, under `scripts/`.
 
 3. **Run the export script**
-   - Execute: `node <skill-path>/scripts/export-pptx.mjs <presentation-dir> [deck-title]`
+   - Execute: `node <skill-path>/scripts/export-pptx.mjs <presentation-dir> [deck-title] [--scale N]`
    - `<presentation-dir>` is the `presentation/` directory in the working directory.
    - `[deck-title]` is optional — extract it from `PLANNING.md` if available, otherwise default to `deck`.
+   - `[--scale N]` is optional — pass through from the user's invocation if provided (default 3).
    - The script will:
-     - Launch a headless browser to render each slide at 1280x720 (2x resolution for crisp output)
+     - Launch a headless browser to render each slide at 1280x720 (Nx resolution for crisp output, default 3x)
      - Capture each slide as a high-quality PNG screenshot
      - Assemble all screenshots into a PPTX file
      - Save the PPTX to `presentation/<deck-title>.pptx`
