@@ -1,6 +1,6 @@
 ---
 name: deck
-description: Generate high-quality HTML presentation decks with a strict two-stage workflow; manually invoked only when the user runs `/deck --plan` (create PLANNING.md) or `/deck --generate` (produce final slides from approved PLANNING.md), supporting technical sharing, architecture reviews, strategy decks, research summaries, pitch decks, and team updates as standalone 1280x720 (16:9) HTML slides.
+description: Generate high-quality HTML presentation decks with a strict two-stage workflow; manually invoked only when the user runs `/deck --plan` (create PLANNING.md), `/deck --generate` (produce final slides from approved PLANNING.md), or `/deck --export pptx` (export generated slides to PPTX format), supporting technical sharing, architecture reviews, strategy decks, research summaries, pitch decks, and team updates as standalone 1280x720 (16:9) HTML slides.
 ---
 
 # Deck — Presentation Deck Generator
@@ -11,6 +11,7 @@ Parse the invocation to determine mode:
 
 - **`/deck --plan [prompt]`** — Planning mode. Create deck outline, save to `PLANNING.md`, present for review. **Do NOT generate HTML.**
 - **`/deck --generate [optional instructions]`** — Generation mode. Produce final HTML slides from approved `PLANNING.md`. **Refuse if `PLANNING.md` is missing.**
+- **`/deck --export pptx`** — Export mode. Convert generated HTML slides into a PPTX file. **Refuse if `presentation/slides/` is missing or contains no slide HTML files.**
 
 If neither flag is provided, ask the user which mode they want.
 
@@ -79,6 +80,37 @@ If neither flag is provided, ask the user which mode they want.
 
 ---
 
+## Export Mode (`--export pptx`)
+
+1. **Check for `presentation/slides/`**
+   - If missing or empty: stop and tell the user to run `/deck --generate` first.
+   - Verify that slide HTML files (`slide1.html`, `slide2.html`, ...) exist in the directory.
+
+2. **Install dependencies** (first time only)
+   - Check if `node_modules/` exists in the skill's `scripts/` directory.
+   - If not, run: `cd <skill-path>/scripts && npm install`
+   - The skill's `scripts/` directory is located relative to this SKILL.md file, under `scripts/`.
+
+3. **Run the export script**
+   - Execute: `node <skill-path>/scripts/export-pptx.mjs <presentation-dir> [deck-title]`
+   - `<presentation-dir>` is the `presentation/` directory in the working directory.
+   - `[deck-title]` is optional — extract it from `PLANNING.md` if available, otherwise default to `deck`.
+   - The script will:
+     - Launch a headless browser to render each slide at 1280x720 (2x resolution for crisp output)
+     - Capture each slide as a high-quality PNG screenshot
+     - Assemble all screenshots into a PPTX file
+     - Save the PPTX to `presentation/<deck-title>.pptx`
+     - Clean up temporary image files automatically
+
+4. **Report results**
+   - Tell the user the PPTX file path and slide count.
+   - If the export fails, show the error message and suggest troubleshooting steps:
+     - Ensure Node.js >= 18 is installed
+     - Ensure `presentation/slides/` contains valid slide HTML files
+     - Try running `cd <skill-path>/scripts && npm install` manually if dependency installation failed
+
+---
+
 ## Slide Quality Rules
 
 - **One key point per slide** + up to 4 supporting bullets.
@@ -98,6 +130,7 @@ working-directory/
 ├── resources/                   # User-provided reference materials
 └── presentation/                # Created in --generate mode
     ├── index.html               # Viewer (from viewer-template.html)
+    ├── <deck-title>.pptx        # Created in --export pptx mode
     └── slides/
         ├── slide1.html          # Individual slides
         ├── slide2.html
