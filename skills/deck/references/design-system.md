@@ -56,6 +56,21 @@ Default visual system for generated decks. Users may override any of these in th
 - **Visual elements**: At least 1 per slide (icon, chart, diagram, card, color block)
 - **Footer**: Page number + section name, positioned bottom-left or bottom-right
 
+## Content Density & Overflow Prevention
+
+All content must fit within the 1280×720 canvas without overflow or clipping.
+
+- **Code blocks / file trees**: Maximum ~15 lines at 15px font size, or ~18 lines at 13px. If content exceeds this, reduce font size (minimum 12px) or split across slides.
+- **Dense technical slides**: Use smaller font sizes (13-14px for code, 16-18px for body) and tighter padding (50-60px) to fit more content. Always verify the content fits within 720px height minus footer space (~50px).
+- **Bullet lists**: Maximum 6 items per slide. If more are needed, split into multiple slides or use a 2-column grid.
+- **Tables**: Maximum 8-10 rows. Beyond that, split across slides or use a smaller font size (13-14px).
+- **When in doubt, split**: It is always better to use two clear slides than one cramped slide.
+
+## Links
+
+- All links in slides should include `target="_blank" rel="noopener"` since slides are rendered inside iframes.
+- Style links to match the accent color (`#E07A59`) with `text-decoration: none`.
+
 ## Decorative Elements
 
 - Background accent shapes: radial gradients with low opacity (0.08-0.15)
