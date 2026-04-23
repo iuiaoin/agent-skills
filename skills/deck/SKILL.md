@@ -116,6 +116,7 @@ If neither flag is provided, ask the user which mode they want.
 
 - **One key point per slide** + up to 4 supporting bullets.
 - **No text walls.** If a slide has more than ~60 words of body text, split it.
+- **No overflow.** All content must fit within 1280×720 without clipping. For dense content (code blocks, file trees, tables), reduce font size or split across multiple slides. See content density guidelines in [references/design-system.md](references/design-system.md).
 - **Every slide has a visual element** — icon set, grid layout, chart placeholder, diagram, color-blocked card, or image.
 - **Consistent styling** — all slides share the same color palette, font stack, and animation approach.
 - **Scannable** — use bold labels, short phrases, and structured layouts (grids, lists, cards).

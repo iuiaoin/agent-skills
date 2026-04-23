@@ -216,8 +216,7 @@ Side-by-side code example and info/config panel. Good for technical demos.
   .code-block {
     background-color: #FBF8F5; border: 1px solid #EAE0D9; border-radius: 12px;
     padding: 0 20px; font-family: 'Source Code Pro', monospace; font-size: 14px;
-    line-height: 1.5; white-space: pre-wrap; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    white-space: pre;
+    line-height: 1.5; white-space: pre; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   }
   .info-block {
     background-color: #FBF8F5; border: 1px solid #EAE0D9; border-radius: 12px;
