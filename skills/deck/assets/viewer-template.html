@@ -116,7 +116,7 @@
     </div>
     <div class="presentation-mode" id="presentation-mode" tabindex="-1">
         <div class="presentation-slide-container">
-            <iframe id="presentation-slide" class="presentation-slide" src="" frameborder="0" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"></iframe>
+            <iframe id="presentation-slide" class="presentation-slide" src="" title="Current presentation slide" frameborder="0" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"></iframe>
         </div>
         <div class="presentation-controls">
             <button id="prev-slide"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
@@ -160,7 +160,7 @@
                 const sp = document.createElement('div');
                 sp.className = 'slide-preview';
                 if (index === currentSlideIndex) sp.classList.add('active');
-                sp.innerHTML = `<div class="slide-number">${index + 1}</div><div class="slide-frame-container"><iframe class="slide-frame" src="${slide}" frameborder="0" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"></iframe></div>`;
+                sp.innerHTML = `<div class="slide-number">${index + 1}</div><div class="slide-frame-container"><iframe class="slide-frame" src="${slide}" title="Slide preview ${index + 1}" frameborder="0" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"></iframe></div>`;
                 sp.addEventListener('click', () => startPresentation(index));
                 previewContainer.appendChild(sp);
             });
@@ -264,6 +264,7 @@
         });
         document.addEventListener('keydown', (e) => {
             if (presentationMode.style.display === 'flex') {
+                if (e.ctrlKey || e.metaKey || e.altKey) return;
                 if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'n') { e.preventDefault(); nextSlide(); }
                 else if (e.key === 'ArrowLeft' || e.key === 'p') { e.preventDefault(); prevSlide(); }
                 else if (e.key === 'Escape') { e.preventDefault(); isFullscreen ? exitFullscreenFn() : exitPresentation(); }
