@@ -30,6 +30,8 @@ Default visual system for generated decks. Users may override any of these in th
 - **Padding**: 60-120px depending on slide type
 - **Safe content frame**: default live area should fit inside `top: 56px`, `left/right: 72px`, `bottom: 96px`
 - **Footer lane**: reserve the bottom `44-56px` for footer metadata only; keep at least one text line of breathing room above it
+- **Default footer profile (content slides)**: `left/right: 70px`, `bottom: 18px`, `font-size: 12px`, muted footer color
+- **Cover footer profile**: `left/right: 60px`, `bottom: 40px`, `font-size: 16px`
 - **Content area**: Keep text within safe margins (min 60px from edges), and bias vertical centering inside the live frame instead of the full canvas
 - **Layout contract**: keep `.slide` as a fixed 1280x720 frame (no extra safe-area padding on `.slide`). Put safe-area spacing in `.content-frame`.
 - **Full-height wrappers**: if a child uses `height: 100%` with padding, set `box-sizing: border-box` to avoid top-shift/cropping side effects.
@@ -61,6 +63,7 @@ Default visual system for generated decks. Users may override any of these in th
 - **Visual elements**: At least 1 per slide (icon, chart, diagram, card, color block)
 - **Footer**: Page number + section name, positioned bottom-left or bottom-right
 - **Vertical balance**: cover slides, section breaks, and pull-quote slides should feel centered in the live frame; do not park all content in the top half unless the layout is intentionally diagram-first
+- **Title-page alignment**: keep cover/section/title pages alignment-consistent within the same deck (default centered). Use left-aligned title pages only when explicitly requested or when matching an existing deck style.
 - **Bottom safety**: do not place dense cards, tables, or captions below the live frame; if the content reaches the footer lane, simplify or split the slide
 - **Cropping rule**: `overflow: hidden` is allowed for decorative backgrounds only, never as a way to hide overflowing content
 
