@@ -61,6 +61,12 @@ If neither flag is provided, ask the user which mode they want.
    - Apply appropriate pattern from slide-patterns.md for each slide type (cover, agenda, content grid, comparison table, code, closing, etc.).
    - Incorporate content synthesized from `resources/` as specified in the plan.
    - Include animations (fade-in, staggered reveals) per the design system.
+   - Keep the visual center of gravity centered within the canvas. Avoid slides that feel top-heavy, left-heavy, or visually cropped in the preview/player.
+   - Reserve a playback-safe bottom area on every slide. No meaningful text, diagrams, or footers may sit in the bottom ~56px of the 720px canvas.
+   - If a slide cannot fit cleanly while preserving the safe area and readable sizing, reduce the content or split it into 2 slides. Never rely on clipping.
+   - Reserve a bottom safe area on every slide: keep meaningful content above the footer lane and leave roughly one text line of empty space above the bottom edge so presentation chrome never overlaps the last line.
+   - Balance layouts inside the live frame, not the full canvas: center single-column covers/section-breaks within the safe content area, and avoid top-heavy compositions unless the slide is intentionally diagram-led.
+   - If a slide becomes cramped, do not shrink everything indiscriminately. First reduce copy, then simplify the visual, then split the content into two slides.
 
 5. **Generate the viewer**
    - Copy `assets/viewer-template.html` to `presentation/index.html`.
@@ -119,7 +125,22 @@ If neither flag is provided, ask the user which mode they want.
 - **Every slide has a visual element** — icon set, grid layout, chart placeholder, diagram, color-blocked card, or image.
 - **Consistent styling** — all slides share the same color palette, font stack, and animation approach.
 - **Scannable** — use bold labels, short phrases, and structured layouts (grids, lists, cards).
+- **Centered composition** — titles and major content blocks should feel optically centered within the safe content frame, not pushed against the top edge.
+- **Bottom safe area** — keep the last ~56px of the slide clear of critical content so playback chrome or page overlays never cover the final line.
+- **No visual clipping** — do not depend on `overflow: hidden` to hide oversized content; condense or split the slide instead.
 - **Footer** — include page number on content slides.
+
+## Validation Checklist
+
+Before finishing generation, visually inspect the generated deck in the viewer and verify:
+
+- List view preserves a 16:9 aspect ratio with no horizontal or vertical cropping.
+- Fullscreen/player mode keeps slides centered and scaled without distortion.
+- No slide has important content or footer text inside the playback-safe bottom area.
+- If any slide feels cramped or cropped, revise that slide immediately by simplifying or splitting it.
+- **Safe area** — reserve a bottom footer lane; no body copy, captions, or cards should sit flush against the lower edge.
+- **Centered composition** — for cover, section break, and single-message slides, center content within the safe content frame rather than anchoring it too high.
+- **Overflow policy** — never let content crop at the bottom. Shorten, simplify, or split the slide instead.
 
 ---
 

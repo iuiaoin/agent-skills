@@ -43,10 +43,28 @@ Every slide HTML follows this skeleton:
       display: none;
     }
     .slide {
+      --safe-top: 56px;
+      --safe-side: 72px;
+      --safe-bottom: 96px;
+      --footer-bottom: 40px;
       width: 1280px; height: 720px;
       background-color: #F7F4EF;
       position: relative; overflow: hidden;
       box-sizing: border-box;
+    }
+    .content-frame {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      padding: var(--safe-top) var(--safe-side) var(--safe-bottom);
+      box-sizing: border-box;
+    }
+    .footer {
+      position: absolute;
+      left: var(--safe-side);
+      right: var(--safe-side);
+      bottom: var(--footer-bottom);
     }
     /* Fade-in animation */
     @keyframes fadeInContent {
@@ -61,11 +79,15 @@ Every slide HTML follows this skeleton:
 </head>
 <body>
   <div class="slide">
-    <!-- slide content here -->
+    <div class="content-frame">
+      <!-- slide content here -->
+    </div>
   </div>
 </body>
 </html>
 ```
+
+Use `.content-frame` as the live layout area. Decorative backgrounds may extend outside it, but meaningful content should stay inside it. If a layout needs a footer, place it in the reserved footer lane and keep the last line of body copy above the safe-bottom padding.
 
 ---
 
@@ -76,6 +98,9 @@ Centered title with gradient accent, decorative background shapes, footer with p
 ```html
 <style>
   .slide {
+    display: flex; flex-direction: column;
+  }
+  .content-frame {
     display: flex; flex-direction: column; justify-content: center;
     align-items: center; text-align: center;
   }
@@ -91,7 +116,6 @@ Centered title with gradient accent, decorative background shapes, footer with p
   }
   p.tagline { font-size: 24px; color: #5D4E42; margin: 0; max-width: 800px; line-height: 1.5; }
   .footer {
-    position: absolute; bottom: 40px; left: 60px; right: 60px;
     display: flex; justify-content: space-between; align-items: center; z-index: 2;
     animation: fadeInContent 1.2s ease-in-out 0.2s forwards; opacity: 0;
   }
@@ -106,16 +130,20 @@ Centered title with gradient accent, decorative background shapes, footer with p
 <div class="slide">
   <div class="accent-shape shape1"></div>
   <div class="accent-shape shape2"></div>
-  <div class="slide-content">
-    <h2>Deck Title</h2>
-    <p class="tagline">Subtitle or tagline</p>
-  </div>
-  <div class="footer">
-    <div class="presenter">Presenter Name</div>
-    <div class="date">Date</div>
+  <div class="content-frame">
+    <div class="slide-content">
+      <h2>Deck Title</h2>
+      <p class="tagline">Subtitle or tagline</p>
+    </div>
+    <div class="footer">
+      <div class="presenter">Presenter Name</div>
+      <div class="date">Date</div>
+    </div>
   </div>
 </div>
 ```
+
+Center the cover content inside `.content-frame`, not the raw 720px canvas. This keeps the title visually centered even after reserving a footer lane.
 
 ---
 
@@ -125,7 +153,7 @@ Large title + vertical list with accent-colored left bar markers and staggered a
 
 ```html
 <style>
-  .slide { display: flex; flex-direction: column; justify-content: center; padding: 90px 120px; }
+  .content-frame { display: flex; flex-direction: column; justify-content: center; padding: 90px 120px 120px; }
   h1 { color: #2B2A27; font-size: 64px; font-weight: 700; margin: 0 0 60px; animation: slideInUp 0.6s ease-out; }
   ul { list-style: none; padding: 0; margin: 0; }
   li {
@@ -144,14 +172,18 @@ Large title + vertical list with accent-colored left bar markers and staggered a
   }
 </style>
 <div class="slide">
-  <h1>Agenda</h1>
-  <ul>
-    <li>Topic One</li>
-    <li>Topic Two</li>
-    <li>Topic Three</li>
-  </ul>
+  <div class="content-frame">
+    <h1>Agenda</h1>
+    <ul>
+      <li>Topic One</li>
+      <li>Topic Two</li>
+      <li>Topic Three</li>
+    </ul>
+  </div>
 </div>
 ```
+
+If the list approaches the footer lane, reduce the list length or split the agenda rather than tightening line-height.
 
 ---
 
@@ -161,7 +193,7 @@ Title + 2-column grid of features with emoji icons and bold labels.
 
 ```html
 <style>
-  .slide { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px; }
+  .content-frame { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px 110px; }
   .slide-content { width: 100%; opacity: 0; animation: fadeInContent 0.8s 0.2s ease-out forwards; }
   .title { font-size: 50px; font-weight: 700; color: #2B2A27; text-align: center; margin: 0 0 25px; }
   .mission { font-size: 26px; color: #E07A59; text-align: center; margin: 0 auto 60px; max-width: 85%; font-weight: 700; }
@@ -187,7 +219,7 @@ Title + side-by-side image and text list. Good for architecture diagrams.
 
 ```html
 <style>
-  .slide { display: flex; flex-direction: column; padding: 60px; }
+  .content-frame { display: flex; flex-direction: column; padding: 60px 60px 108px; }
   h1 { color: #2B2A27; font-size: 52px; font-weight: 700; margin: 0 0 35px; text-align: center; }
   .content-container { display: flex; flex: 1; gap: 40px; align-items: center; }
   .image-section { flex: 1; display: flex; justify-content: center; align-items: center; }
@@ -208,7 +240,7 @@ Side-by-side code example and info/config panel. Good for technical demos.
 
 ```html
 <style>
-  .slide { display: flex; flex-direction: column; padding: 60px 80px; }
+  .content-frame { display: flex; flex-direction: column; padding: 60px 80px 108px; }
   h1 { font-size: 52px; color: #2B2A27; text-align: center; margin: 0 0 50px; font-weight: 700; }
   .content-wrapper { display: flex; gap: 60px; flex: 1; height: 0; }
   .column { flex: 1; display: flex; flex-direction: column; min-width: 0; }
@@ -236,7 +268,7 @@ Full-width table with header row and data rows. Use icons/symbols for quick scan
 
 ```html
 <style>
-  .slide { padding: 50px 60px; display: flex; flex-direction: column; }
+  .content-frame { padding: 50px 60px 112px; display: flex; flex-direction: column; }
   h1 { font-size: 44px; color: #2B2A27; margin: 0 0 30px; text-align: center; }
   table { width: 100%; border-collapse: collapse; font-size: 15px; }
   th {
@@ -270,7 +302,7 @@ Centered, minimal. Similar to cover but simpler.
 
 ```html
 <style>
-  .slide {
+  .content-frame {
     display: flex; flex-direction: column; justify-content: center;
     align-items: center; text-align: center;
   }
@@ -278,7 +310,11 @@ Centered, minimal. Similar to cover but simpler.
   p { font-size: 28px; color: #5D4E42; max-width: 700px; line-height: 1.6; }
 </style>
 <div class="slide">
-  <h1>Thank You</h1>
-  <p>Questions & Discussion</p>
+  <div class="content-frame">
+    <h1>Thank You</h1>
+    <p>Questions & Discussion</p>
+  </div>
 </div>
 ```
+
+Before finalizing any slide, do a geometry check: the lowest meaningful content should remain above the footer lane. If it does not, shorten copy, reduce card count, or split the slide.

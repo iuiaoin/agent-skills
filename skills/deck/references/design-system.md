@@ -27,7 +27,9 @@ Default visual system for generated decks. Users may override any of these in th
 
 - **Canvas**: 1280px x 720px (16:9)
 - **Padding**: 60-120px depending on slide type
-- **Content area**: Keep text within safe margins (min 60px from edges)
+- **Safe content frame**: default live area should fit inside `top: 56px`, `left/right: 72px`, `bottom: 96px`
+- **Footer lane**: reserve the bottom `44-56px` for footer metadata only; keep at least one text line of breathing room above it
+- **Content area**: Keep text within safe margins (min 60px from edges), and bias vertical centering inside the live frame instead of the full canvas
 
 ## Animations
 
@@ -55,6 +57,9 @@ Default visual system for generated decks. Users may override any of these in th
 - **Avoid**: Large blocks of text, walls of bullets, dense paragraphs
 - **Visual elements**: At least 1 per slide (icon, chart, diagram, card, color block)
 - **Footer**: Page number + section name, positioned bottom-left or bottom-right
+- **Vertical balance**: cover slides, section breaks, and pull-quote slides should feel centered in the live frame; do not park all content in the top half unless the layout is intentionally diagram-first
+- **Bottom safety**: do not place dense cards, tables, or captions below the live frame; if the content reaches the footer lane, simplify or split the slide
+- **Cropping rule**: `overflow: hidden` is allowed for decorative backgrounds only, never as a way to hide overflowing content
 
 ## Decorative Elements
 
