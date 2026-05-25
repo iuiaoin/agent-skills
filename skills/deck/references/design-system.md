@@ -30,6 +30,8 @@ Default visual system for generated decks. Users may override any of these in th
 - **Safe content frame**: default live area should fit inside `top: 56px`, `left/right: 72px`, `bottom: 96px`
 - **Footer lane**: reserve the bottom `44-56px` for footer metadata only; keep at least one text line of breathing room above it
 - **Content area**: Keep text within safe margins (min 60px from edges), and bias vertical centering inside the live frame instead of the full canvas
+- **Layout contract**: keep `.slide` as a fixed 1280x720 frame (no extra safe-area padding on `.slide`). Put safe-area spacing in `.content-frame`.
+- **Full-height wrappers**: if a child uses `height: 100%` with padding, set `box-sizing: border-box` to avoid top-shift/cropping side effects.
 
 ## Animations
 

@@ -89,6 +89,8 @@ Every slide HTML follows this skeleton:
 
 Use `.content-frame` as the live layout area. Decorative backgrounds may extend outside it, but meaningful content should stay inside it. If a layout needs a footer, place it in the reserved footer lane and keep the last line of body copy above the safe-bottom padding.
 
+Do not implement safe area by adding `padding-bottom` (or other safe-area padding) on `.slide` itself. Keep `.slide` as a fixed 1280x720 frame and place safe-area spacing in `.content-frame`. If a nested wrapper uses `height: 100%` with padding, set `box-sizing: border-box`.
+
 ---
 
 ## Cover Slide

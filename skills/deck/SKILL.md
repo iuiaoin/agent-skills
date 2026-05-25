@@ -66,6 +66,8 @@ If neither flag is provided, ask the user which mode they want.
    - If a slide cannot fit cleanly while preserving the safe area and readable sizing, reduce the content or split it into 2 slides. Never rely on clipping.
    - Reserve a bottom safe area on every slide: keep meaningful content above the footer lane and leave roughly one text line of empty space above the bottom edge so presentation chrome never overlaps the last line.
    - Balance layouts inside the live frame, not the full canvas: center single-column covers/section-breaks within the safe content area, and avoid top-heavy compositions unless the slide is intentionally diagram-led.
+   - Keep geometry contract stable: do not add safe-area padding directly on `.slide` (fixed 1280x720 frame). Apply safe-area padding in `.content-frame` only.
+   - If any wrapper uses `height: 100%` and padding, ensure `box-sizing: border-box` so added padding does not push content off-center or clip the bottom.
    - If a slide becomes cramped, do not shrink everything indiscriminately. First reduce copy, then simplify the visual, then split the content into two slides.
 
 5. **Generate the viewer**
@@ -129,6 +131,7 @@ If neither flag is provided, ask the user which mode they want.
 - **Centered composition** — titles and major content blocks should feel optically centered within the safe content frame, not pushed against the top edge.
 - **Bottom safe area** — keep the last ~56px of the slide clear of critical content so playback chrome or page overlays never cover the final line.
 - **No visual clipping** — do not depend on `overflow: hidden` to hide oversized content; condense or split the slide instead.
+- **Stable frame contract** — keep `.slide` as a fixed frame (1280x720) without extra safe-area padding. Use `.content-frame` for internal spacing and footer-lane reservation.
 - **Footer** — include page number on content slides.
 
 ## Validation Checklist
@@ -141,6 +144,7 @@ Before finishing generation, visually inspect the generated deck in the viewer a
 - If any slide feels cramped or cropped, revise that slide immediately by simplifying or splitting it.
 - **Safe area** — reserve a bottom footer lane; no body copy, captions, or cards should sit flush against the lower edge.
 - **Centered composition** — for cover, section break, and single-message slides, center content within the safe content frame rather than anchoring it too high.
+- **Title alignment sanity check** — on cover/section slides, the title block should be centered horizontally and visually around the middle band of the live frame (roughly 45%-55% of frame height), not biased toward the top.
 - **Overflow policy** — never let content crop at the bottom. Shorten, simplify, or split the slide instead.
 
 ---
