@@ -132,6 +132,7 @@ If neither flag is provided, ask the user which mode they want.
 - **Centered composition** — titles and major content blocks should feel optically centered within the safe content frame, not pushed against the top edge.
 - **Bottom safe area** — keep the last ~56px of the slide clear of critical content so playback chrome or page overlays never cover the final line.
 - **Footer profile** — default content-slide footer style should stay compact and consistent (`left/right: 70px`, `bottom: 18px`, `font-size: 12px`, muted text). Cover slides may use a larger footer profile (`left/right: 60px`, `bottom: 40px`, `font-size: 16px`).
+- **Dense-slide compact mode** — when a slide includes 2+ dense cards/panels or a large summary bar, increase bottom-safe padding to about `86-102px` and reduce body text one step before shipping; never let content extend into the footer lane.
 - **No visual clipping** — do not depend on `overflow: hidden` to hide oversized content; condense or split the slide instead.
 - **Stable frame contract** — keep `.slide` as a fixed frame (1280x720) without extra safe-area padding. Use `.content-frame` for internal spacing and footer-lane reservation.
 - **Title descender safety** — for large display titles (about 56px+), use line-height >= 1.02 so letters like `g/y/p/q` are never clipped.
@@ -152,6 +153,7 @@ Before finishing generation, visually inspect the generated deck in the viewer a
 - **Title alignment sanity check** — on cover/section slides, the title block should be centered horizontally and visually around the middle band of the live frame (roughly 45%-55% of frame height), not biased toward the top.
 - **Descender sanity check** — verify the largest title renders cleanly (including `g/y/p/q/j` descenders) with no top/bottom crop in list and player mode.
 - **Stack sanity check** — for layer/architecture slides, confirm the bottom card and labels remain fully visible above the footer lane.
+- **Dense layout sanity check** — for slides with multiple cards/rows (for example comparison grids, two-column panel stacks, or bottom callout bars), verify the lowest card/callout clears the footer lane with visible breathing room.
 - **Overflow policy** — never let content crop at the bottom. Shorten, simplify, or split the slide instead.
 
 ---
