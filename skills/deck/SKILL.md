@@ -132,6 +132,8 @@ If neither flag is provided, ask the user which mode they want.
 - **Bottom safe area** — keep the last ~56px of the slide clear of critical content so playback chrome or page overlays never cover the final line.
 - **No visual clipping** — do not depend on `overflow: hidden` to hide oversized content; condense or split the slide instead.
 - **Stable frame contract** — keep `.slide` as a fixed frame (1280x720) without extra safe-area padding. Use `.content-frame` for internal spacing and footer-lane reservation.
+- **Title descender safety** — for large display titles (about 56px+), use line-height >= 1.02 so letters like `g/y/p/q` are never clipped.
+- **Dense stack budget** — for architecture/layer stacks, reduce per-layer sizing and spacing so the last layer remains clearly above the footer lane; split if needed.
 - **Footer** — include page number on content slides.
 
 ## Validation Checklist
@@ -145,6 +147,8 @@ Before finishing generation, visually inspect the generated deck in the viewer a
 - **Safe area** — reserve a bottom footer lane; no body copy, captions, or cards should sit flush against the lower edge.
 - **Centered composition** — for cover, section break, and single-message slides, center content within the safe content frame rather than anchoring it too high.
 - **Title alignment sanity check** — on cover/section slides, the title block should be centered horizontally and visually around the middle band of the live frame (roughly 45%-55% of frame height), not biased toward the top.
+- **Descender sanity check** — verify the largest title renders cleanly (including `g/y/p/q/j` descenders) with no top/bottom crop in list and player mode.
+- **Stack sanity check** — for layer/architecture slides, confirm the bottom card and labels remain fully visible above the footer lane.
 - **Overflow policy** — never let content crop at the bottom. Shorten, simplify, or split the slide instead.
 
 ---

@@ -19,6 +19,7 @@ Default visual system for generated decks. Users may override any of these in th
 
 - **Headings**: `Inter`, weight 600-700, sizes 48-72px, letter-spacing -0.5 to -1px
 - **Body**: `Inter`, weight 400-500, sizes 18-30px, line-height 1.5-1.7
+- **Display title safety**: for titles around 56px+, keep line-height >= 1.02 to avoid descender clipping on letters like `g/y/p/q/j`
 - **Chinese fallback**: `PingFang SC`, `Microsoft YaHei`, `Hiragino Sans GB`
 - **Code**: `Source Code Pro`, monospace
 - **Import**: `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');`
@@ -69,6 +70,7 @@ All content must fit within the 1280×720 canvas without overflow or clipping.
 
 - **Code blocks / file trees**: Maximum ~15 lines at 15px font size, or ~18 lines at 13px. If content exceeds this, reduce font size (minimum 12px) or split across slides.
 - **Dense technical slides**: Use smaller font sizes (13-14px for code, 16-18px for body) and tighter padding (50-60px) to fit more content. Always verify the content fits within 720px height minus footer space (~50px).
+- **Layer/architecture stacks**: Keep stack slides at 5 layers or fewer. Prefer compact layer typography (about 18-20px title, 12-14px detail) and tight arrow gaps (about 4-6px) so the bottom layer stays above the footer lane.
 - **Bullet lists**: Maximum 6 items per slide. If more are needed, split into multiple slides or use a 2-column grid.
 - **Tables**: Maximum 8-10 rows. Beyond that, split across slides or use a smaller font size (13-14px).
 - **When in doubt, split**: It is always better to use two clear slides than one cramped slide.

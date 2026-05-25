@@ -318,4 +318,4 @@ Centered, minimal. Similar to cover but simpler.
 </div>
 ```
 
-Before finalizing any slide, do a geometry check: the lowest meaningful content should remain above the footer lane. If it does not, shorten copy, reduce card count, or split the slide.
+Before finalizing any slide, do a geometry check: the lowest meaningful content should remain above the footer lane. If it does not, shorten copy, reduce card count, or split the slide. Also verify large headings do not clip descenders (`g/y/p/q/j`) and that architecture/layer stacks keep their bottom layer fully visible.
