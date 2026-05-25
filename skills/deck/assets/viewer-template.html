@@ -265,10 +265,11 @@
         });
         document.addEventListener('keydown', (e) => {
             if (presentationMode.style.display === 'flex') {
-                if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'n') { nextSlide(); }
-                else if (e.key === 'ArrowLeft' || e.key === 'p') { prevSlide(); }
-                else if (e.key === 'Escape') { isFullscreen ? exitFullscreenFn() : exitPresentation(); }
-                else if (e.key === 'f' || e.key === 'F') { toggleFullscreen(); }
+                if (e.ctrlKey || e.metaKey || e.altKey) return;
+                if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'n') { e.preventDefault(); nextSlide(); }
+                else if (e.key === 'ArrowLeft' || e.key === 'p') { e.preventDefault(); prevSlide(); }
+                else if (e.key === 'Escape') { e.preventDefault(); isFullscreen ? exitFullscreenFn() : exitPresentation(); }
+                else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); }
             }
         });
         window.addEventListener('load', initViewer);
