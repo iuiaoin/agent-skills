@@ -18,6 +18,7 @@ Default visual system for generated decks. Users may override any of these in th
 ## Typography
 
 - **Headings**: `Inter`, weight 600-700, sizes 48-72px, letter-spacing -0.5 to -1px
+- **Heading length budget**: keep titles concise (roughly <=10 words) and generally within 1-2 lines; if a title wraps to 3+ lines, shorten it and move detail to subtitle/body text.
 - **Body**: `Inter`, weight 400-500, sizes 18-30px, line-height 1.5-1.7
 - **Display title safety**: for titles around 56px+, keep line-height >= 1.02 to avoid descender clipping on letters like `g/y/p/q/j`
 - **Chinese fallback**: `PingFang SC`, `Microsoft YaHei`, `Hiragino Sans GB`
