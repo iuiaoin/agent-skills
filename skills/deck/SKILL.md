@@ -62,9 +62,10 @@ If neither flag is provided, ask the user which mode they want.
    - Incorporate content synthesized from `resources/` as specified in the plan.
    - Include animations (fade-in, staggered reveals) per the design system.
    - Keep the visual center of gravity centered within the canvas. Avoid slides that feel top-heavy, left-heavy, or visually cropped in the preview/player.
-   - Reserve a playback-safe bottom area on every slide. No meaningful text, diagrams, or footers may sit in the bottom ~56px of the 720px canvas.
-   - If a slide cannot fit cleanly while preserving the safe area and readable sizing, reduce the content or split it into 2 slides. Never rely on clipping.
-   - Reserve a bottom safe area on every slide: keep meaningful content above the footer lane and leave roughly one text line of empty space above the bottom edge so presentation chrome never overlaps the last line.
+   - Reserve a playback-safe bottom area on every slide for body/critical content. No meaningful body text, key labels, tables, diagrams, or other essential content may sit in the bottom ~56px of the 720px canvas.
+   - A dedicated footer lane is allowed within that bottom ~56px zone for low-priority footer metadata only (for example: slide numbers, short source/date labels, or subtle brand marks). Do not place primary content in this footer lane.
+   - If a slide cannot fit cleanly while keeping body/critical content above the footer lane and maintaining readable sizing, reduce the content or split it into 2 slides. Never rely on clipping.
+   - Reserve a bottom safe area on every slide: keep meaningful content above the footer lane and leave roughly one text line of empty space above the footer metadata so presentation chrome never overlaps the last line of body content.
    - Balance layouts inside the live frame, not the full canvas: center single-column covers/section-breaks within the safe content area, and avoid top-heavy compositions unless the slide is intentionally diagram-led.
    - Keep geometry contract stable: do not add safe-area padding directly on `.slide` (fixed 1280x720 frame). Apply safe-area padding in `.content-frame` only.
    - If any wrapper uses `height: 100%` and padding, ensure `box-sizing: border-box` so added padding does not push content off-center or clip the bottom.
@@ -131,9 +132,9 @@ If neither flag is provided, ask the user which mode they want.
 - **Title simplicity** — keep slide titles short and declarative. Default target is about `<= 10 words` and usually `<= 2 lines`; move detail into subtitle/body instead of expanding the headline.
 - **Title-page alignment policy** — default to centered composition for cover/section/title pages. Use left-aligned title pages only when explicitly requested by the user/plan and keep that choice consistent across title pages in the same deck.
 - **Centered composition** — titles and major content blocks should feel optically centered within the safe content frame, not pushed against the top edge.
-- **Bottom safe area** — keep the last ~56px of the slide clear of critical content so playback chrome or page overlays never cover the final line.
+- **Bottom safe area** — reserve a canonical **96px safe content inset** at the bottom of the slide for all critical content. Treat the lower ~56px of that reserved zone as the **footer/playback-chrome lane**; do not place body copy, labels, or chart annotations there.
 - **Footer profile** — default content-slide footer style should stay compact and consistent (`left/right: 70px`, `bottom: 18px`, `font-size: 12px`, muted text). Cover slides may use a larger footer profile (`left/right: 60px`, `bottom: 40px`, `font-size: 16px`).
-- **Dense-slide compact mode** — when a slide includes 2+ dense cards/panels or a large summary bar, increase bottom-safe padding to about `86-102px` and reduce body text one step before shipping; never let content extend into the footer lane.
+- **Dense-slide compact mode** — when a slide includes 2+ dense cards/panels or a large summary bar, preserve at least the standard `96px` bottom inset and, if needed, expand the reserved bottom zone modestly (for example to about `96-112px`) before reducing body text one step; never let content extend into the footer lane.
 - **No visual clipping** — do not depend on `overflow: hidden` to hide oversized content; condense or split the slide instead.
 - **Stable frame contract** — keep `.slide` as a fixed frame (1280x720) without extra safe-area padding. Use `.content-frame` for internal spacing and footer-lane reservation.
 - **Title descender safety** — for large display titles (about 56px+), use line-height >= 1.02 so letters like `g/y/p/q` are never clipped.

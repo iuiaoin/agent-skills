@@ -46,7 +46,8 @@ Every slide HTML follows this skeleton:
       --safe-top: 56px;
       --safe-side: 72px;
       --safe-bottom: 96px;
-      --footer-bottom: 40px;
+      --footer-side: 70px;
+      --footer-bottom: 18px;
       width: 1280px; height: 720px;
       background-color: #F7F4EF;
       position: relative; overflow: hidden;
@@ -62,9 +63,11 @@ Every slide HTML follows this skeleton:
     }
     .footer {
       position: absolute;
-      left: var(--safe-side);
-      right: var(--safe-side);
+      left: 0;
+      right: 0;
       bottom: var(--footer-bottom);
+      padding: 0 var(--footer-side);
+      box-sizing: border-box;
     }
     /* Fade-in animation */
     @keyframes fadeInContent {
@@ -91,6 +94,8 @@ Use `.content-frame` as the live layout area. Decorative backgrounds may extend 
 
 Do not implement safe area by adding `padding-bottom` (or other safe-area padding) on `.slide` itself. Keep `.slide` as a fixed 1280x720 frame and place safe-area spacing in `.content-frame`. If a nested wrapper uses `height: 100%` with padding, set `box-sizing: border-box`.
 
+For footer profiles, prefer explicit slide-level variables: content slides default to `--footer-side: 70px` and `--footer-bottom: 18px`; cover slides can override to `--footer-side: 60px` and `--footer-bottom: 40px`.
+
 ---
 
 ## Cover Slide
@@ -99,6 +104,10 @@ Centered title with gradient accent, decorative background shapes, footer with p
 
 ```html
 <style>
+  .slide.cover {
+    --footer-side: 60px;
+    --footer-bottom: 40px;
+  }
   .slide {
     display: flex; flex-direction: column;
   }
@@ -129,7 +138,7 @@ Centered title with gradient accent, decorative background shapes, footer with p
   .shape1 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(224,122,89,0.15) 0%, transparent 70%); top: -100px; left: -100px; }
   .shape2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(159,211,184,0.1) 0%, transparent 70%); bottom: -150px; right: -150px; }
 </style>
-<div class="slide">
+<div class="slide cover">
   <div class="accent-shape shape1"></div>
   <div class="accent-shape shape2"></div>
   <div class="content-frame">
