@@ -10,7 +10,8 @@ description: Generate high-quality HTML presentation decks with a strict two-sta
 Parse the invocation to determine mode:
 
 - **`/deck --plan [prompt]`** — Planning mode. Create deck outline, save to `PLANNING.md`, present for review. **Do NOT generate HTML.**
-- **`/deck --generate [optional instructions]`** — Generation mode. Produce final HTML slides from approved `PLANNING.md`. **Refuse if `PLANNING.md` is missing.**
+- **`/deck --generate [optional instructions]`** — Generation mode. Produce final HTML slides from approved `PLANNING.md`, then automatically run visual QA to catch and fix overflow/layout issues. **Refuse if `PLANNING.md` is missing.**
+- **`/deck --qa [--scale N]`** — Visual QA mode. Re-run the screenshot-inspect-fix loop against already-generated slides (the same loop that runs automatically at the end of `--generate`). Useful after manual edits. **Refuse if `presentation/slides/` is missing or contains no slide HTML files.**
 - **`/deck --export pptx [--scale N]`** — Export mode. Convert generated HTML slides into a PPTX file. Optional `--scale N` controls image resolution multiplier (default 3). **Refuse if `presentation/slides/` is missing or contains no slide HTML files.**
 
 If neither flag is provided, ask the user which mode they want.
@@ -71,12 +72,32 @@ If neither flag is provided, ask the user which mode they want.
    - `presentation/slides/PRESENTATION_SUMMARY.md` — deck overview, structure, design specs.
    - `presentation/slides/PRESENTATION_SCRIPT.md` — speaker notes per slide (2-4 sentences each).
 
-7. **Open & summarize**
+7. **Visual QA & autofix** (run before opening the browser, so the deck the user sees is already clean)
+
+   1. **Ensure dependencies** — if `node_modules/` is missing in the skill's `scripts/` directory, run `cd <skill-path>/scripts && npm install` (same as Export mode). The QA step is often the first thing to need Node modules.
+   2. **Screenshot all slides** — run `node <skill-path>/scripts/screenshot.mjs <presentation-dir> --report`. This writes `presentation/.screenshots/slideN.png` (one per slide, numbered to match `slides/slideN.html`) and `presentation/.screenshots/overflow-report.json`.
+   3. **Inspect** — read `overflow-report.json` first: any slide in its `flagged` list (non-empty `overflowY` / `overflowX` / `offendingSelectors`) has clipped or escaping content and must be fixed. Then **read each `slideN.png`** image and judge it visually for issues the report cannot see:
+      - Content clipped at the 1280×720 edge (text cut mid-line, missing footer).
+      - Overlapping elements, collisions, text running under/over other boxes.
+      - Misalignment, broken grids, uneven columns.
+      - Awkward or excessive whitespace, content crammed into a corner, unbalanced composition.
+   4. **Fix offending `slides/slideN.html`** with good design taste, applying the density rules in [references/design-system.md](references/design-system.md):
+      - **Overflow (too much content):** reduce font size toward the documented minimums (body 16-18px, code 13-14px, never below 12px); tighten padding to 50-60px; condense or trim wording; cap bullets at 6 and table rows at 8-10.
+      - **Overlap / collision:** increase gaps, fix `position` / `flex` / `grid` so elements no longer stack.
+      - **Misalignment / broken grid:** equalize column widths, align baselines, fix `grid-template-columns` / `gap`.
+      - **Awkward whitespace:** rebalance padding, recenter, or redistribute content across the canvas.
+
+      Keep the color palette, font stack, footer, and animation approach identical to the other slides. **Do not split a slide into multiple slides** — that changes the approved slide count; if content genuinely cannot fit, leave it as-is and report it instead (sub-step 6).
+   5. **Re-check only what changed** — re-screenshot just the slides you edited: `node <skill-path>/scripts/screenshot.mjs <presentation-dir> --slides <comma-list> --report`. Read the updated PNGs and report. Repeat sub-steps 3-5.
+   6. **Iteration cap** — run at most **3 QA rounds**. If any slide is still flagged after the third round, stop fixing and **report the remaining issues to the user**: name the slide, the specific problem (e.g. _"slide 6: code block still overflows ~40px past the bottom edge"_), and a recommendation (e.g. _"split into two slides, or shorten the example"_). Never loop indefinitely.
+   7. `presentation/.screenshots/` is a scratch directory — leave it for the user to inspect or delete it; exclude it from the reported file count.
+
+8. **Open & summarize**
    - Open the presentation in the default browser:
      - macOS: `open presentation/index.html`
      - Linux: `xdg-open presentation/index.html`
      - Windows: `start presentation/index.html`
-   - Then report what was generated: file count, total slides, and output location.
+   - Then report what was generated: file count, total slides, and output location. Note how many slides were auto-fixed during visual QA, and any issues you could not resolve.
 
 ---
 
@@ -102,6 +123,7 @@ If neither flag is provided, ask the user which mode they want.
      - Assemble all screenshots into a PPTX file
      - Save the PPTX to `presentation/<deck-title>.pptx`
      - Clean up temporary image files automatically
+   - The renderer is the shared `scripts/lib/render.mjs` module also used by the visual-QA step, so PPTX rendering and QA screenshots stay consistent.
 
 4. **Report results**
    - Tell the user the PPTX file path and slide count.
@@ -109,6 +131,17 @@ If neither flag is provided, ask the user which mode they want.
      - Ensure Node.js >= 18 is installed
      - Ensure `presentation/slides/` contains valid slide HTML files
      - Try running `cd <skill-path>/scripts && npm install` manually if dependency installation failed
+
+---
+
+## QA Mode (`--qa`)
+
+Re-run the visual QA loop against the already-generated slides — the same loop performed automatically at the end of Generation mode. Useful after the user has manually edited slides.
+
+1. **Check for `presentation/slides/`** — if missing or empty, stop and tell the user to run `/deck --generate` first.
+2. **Install dependencies** (first time only) — same as Export mode: if `node_modules/` is missing in the skill's `scripts/` directory, run `cd <skill-path>/scripts && npm install`.
+3. **Run the QA loop** — perform Generation mode step 7 (Visual QA & autofix), sub-steps 2-7, against the existing slides. Honor an optional `--scale N` (default 1).
+4. **Report** — tell the user which slides were fixed and list any issues you could not resolve within 3 rounds.
 
 ---
 
@@ -133,6 +166,7 @@ working-directory/
 └── presentation/                # Created in --generate mode
     ├── index.html               # Viewer (from viewer-template.html)
     ├── <deck-title>.pptx        # Created in --export pptx mode
+    ├── .screenshots/            # QA scratch: slideN.png + overflow-report.json
     └── slides/
         ├── slide1.html          # Individual slides
         ├── slide2.html
