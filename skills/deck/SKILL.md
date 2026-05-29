@@ -46,7 +46,7 @@ Goal: turn whatever the user gives — often just a topic — into a rich, struc
 
 6. **Expand the confirmed brief into `PLANNING.md`**
    - Follow [references/planning-template.md](references/planning-template.md). The confirmed brief becomes the **header** (Task / Slide count ± tolerance / Language / Audience / Goals / Style) plus the **Content & Tone Guidelines** section.
-   - **Visual & Layout Guidelines**: fill verbatim from [references/design-system.md](references/design-system.md) (colors, Inter typography, 1280x720, footer, density rules) unless the brief specified brand colors.
+   - **Visual & Layout Guidelines**: fill from the theme-neutral rules in [references/design-system.md](references/design-system.md) (1280x720 canvas, type scale, footer, density rules). **Do not bake in a color palette** — the color **theme is chosen at `/deck --generate`** (see [Themes](#themes)). If the brief specified brand colors, record them as an override to layer on the chosen theme's accent.
    - **Slide-by-Slide Outline**: let the goal **emphasis/allocation drive how many content slides each section gets** (the KEY goal gets the most — e.g. ~50%). Reserve cover + agenda + closing. For each slide write the actual key point (single takeaway), 2-4 supporting bullets, and a visual element, choosing a pattern from [references/slide-patterns.md](references/slide-patterns.md). Place code only on the slides the brief authorizes.
    - **Data Sources & References**: map each `resources/` file to slides; if none, note the content is synthesized.
    - **Deliverables**: standard block; offer `PRESENTATION_SUMMARY.md` / `PRESENTATION_SCRIPT.md` for 8+ slides.
@@ -65,28 +65,38 @@ Goal: turn whatever the user gives — often just a topic — into a rich, struc
 2. **Confirm approval**
    - If the user has not clearly approved the plan in this conversation, ask: _"The plan in PLANNING.md is ready. Proceed with generation?"_
 
-3. **Read design references**
-   - Load [references/design-system.md](references/design-system.md) for color palette, typography, animations.
-   - Load [references/slide-patterns.md](references/slide-patterns.md) for HTML patterns matching each slide type.
+3. **Select a theme**
+   - The deck's visual style comes from a **theme** (see [Themes](#themes) and `references/themes/`). Pick the default: a theme or brand named in `PLANNING.md` if present, otherwise `claude`.
+   - Ask the user to choose one, using your agent's structured multiple-choice question tool — `AskUserQuestion` (Claude Code) / `ask_user` (Copilot CLI) / `request_user_input` (Codex). One question; the 10 themes are the options (label = theme name + the one-line description from the Themes table), the default listed first. Fallback (no such tool): present the 10 themes as a numbered list and let the user reply with a name or _"default"_.
+   - Read the chosen `references/themes/<name>.md` — it supplies the `:root{}` token block, font setup, viewer overrides, decorative guidance, and any special setup.
 
-4. **Generate slides**
+4. **Read design references**
+   - Load [references/design-system.md](references/design-system.md) for the [token contract](references/design-system.md#theme-token-contract), dimensions, type scale, animations, and density rules.
+   - Load [references/slide-patterns.md](references/slide-patterns.md) for HTML patterns (written against the theme tokens) matching each slide type.
+
+5. **Generate slides**
    - Create `presentation/slides/` directory.
    - Generate each slide as `slide{N}.html` — standalone HTML, 1280x720 canvas.
    - Follow the slide-by-slide outline from `PLANNING.md` exactly.
-   - Apply appropriate pattern from slide-patterns.md for each slide type (cover, agenda, content grid, comparison table, code, closing, etc.).
+   - Apply the appropriate pattern from slide-patterns.md for each slide type (cover, agenda, content grid, comparison table, code, closing, etc.).
+   - **Apply the theme to every slide:** paste the chosen theme's font setup + `:root{}` block at the top of each slide's `<style>` so the token-based patterns render in that theme, and follow the theme's decorative guidance.
+   - **Theme-specific setup:**
+     - `medium`: copy the four `assets/fonts/source-serif-pro-*.woff` files from the skill into `presentation/assets/fonts/` so the `@font-face` URLs resolve.
+     - `hand-writing`: add the rough.js + rough-notation `<script>` tags and init snippet (from `themes/hand-writing.md`) at the end of each slide's `<body>`; mark boxes with `class="sketch"` and emphasis text with `data-annotate="…"`.
    - Incorporate content synthesized from `resources/` as specified in the plan.
    - Include animations (fade-in, staggered reveals) per the design system.
 
-5. **Generate the viewer**
+6. **Generate the viewer**
    - Copy `assets/viewer-template.html` to `presentation/index.html`.
    - Replace `{{DECK_TITLE}}` with the deck title from PLANNING.md.
    - Replace `{{SLIDES_ARRAY}}` with the actual slide paths: `"slides/slide1.html", "slides/slide2.html", ...`
+   - Replace `{{VIEWER_THEME}}` with the chosen theme's **Viewer overrides** `:root{}` block (from `themes/<name>.md`) so the viewer frame matches the deck.
 
-6. **Optional deliverables** (generate if the plan requests them or the deck has 8+ slides)
+7. **Optional deliverables** (generate if the plan requests them or the deck has 8+ slides)
    - `presentation/slides/PRESENTATION_SUMMARY.md` — deck overview, structure, design specs.
    - `presentation/slides/PRESENTATION_SCRIPT.md` — speaker notes per slide (2-4 sentences each).
 
-7. **Visual QA & autofix** (run before opening the browser, so the deck the user sees is already clean)
+8. **Visual QA & autofix** (run before opening the browser, so the deck the user sees is already clean)
 
    1. **Ensure dependencies** — if `node_modules/` is missing in the skill's `scripts/` directory, run `cd <skill-path>/scripts && npm install` (same as Export mode). The QA step is often the first thing to need Node modules.
    2. **Screenshot all slides** — run `node <skill-path>/scripts/screenshot.mjs <presentation-dir> --report`. This writes `presentation/.screenshots/slideN.png` (one per slide, numbered to match `slides/slideN.html`) and `presentation/.screenshots/overflow-report.json`.
@@ -101,12 +111,12 @@ Goal: turn whatever the user gives — often just a topic — into a rich, struc
       - **Misalignment / broken grid:** equalize column widths, align baselines, fix `grid-template-columns` / `gap`.
       - **Awkward whitespace:** rebalance padding, recenter, or redistribute content across the canvas.
 
-      Keep the color palette, font stack, footer, and animation approach identical to the other slides. **Do not split a slide into multiple slides** — that changes the approved slide count; if content genuinely cannot fit, leave it as-is and report it instead (sub-step 6).
+      Keep the theme's palette tokens, font stack, footer, and animation approach identical to the other slides. **Do not split a slide into multiple slides** — that changes the approved slide count; if content genuinely cannot fit, leave it as-is and report it instead (sub-step 6).
    5. **Re-check only what changed** — re-screenshot just the slides you edited: `node <skill-path>/scripts/screenshot.mjs <presentation-dir> --slides <comma-list> --report`. Read the updated PNGs and report. Repeat sub-steps 3-5.
    6. **Iteration cap** — run at most **3 QA rounds**. If any slide is still flagged after the third round, stop fixing and **report the remaining issues to the user**: name the slide, the specific problem (e.g. _"slide 6: code block still overflows ~40px past the bottom edge"_), and a recommendation (e.g. _"split into two slides, or shorten the example"_). Never loop indefinitely.
    7. `presentation/.screenshots/` is a scratch directory — leave it for the user to inspect or delete it; exclude it from the reported file count.
 
-8. **Open & summarize**
+9. **Open & summarize**
    - Open the presentation in the default browser:
      - macOS: `open presentation/index.html`
      - Linux: `xdg-open presentation/index.html`
@@ -154,8 +164,29 @@ Re-run the visual QA loop against the already-generated slides — the same loop
 
 1. **Check for `presentation/slides/`** — if missing or empty, stop and tell the user to run `/deck --generate` first.
 2. **Install dependencies** (first time only) — same as Export mode: if `node_modules/` is missing in the skill's `scripts/` directory, run `cd <skill-path>/scripts && npm install`.
-3. **Run the QA loop** — perform Generation mode step 7 (Visual QA & autofix), sub-steps 2-7, against the existing slides. Honor an optional `--scale N` (default 1).
+3. **Run the QA loop** — perform Generation mode step 8 (Visual QA & autofix), sub-steps 2-7, against the existing slides. Honor an optional `--scale N` (default 1).
 4. **Report** — tell the user which slides were fixed and list any issues you could not resolve within 3 rounds.
+
+---
+
+## Themes
+
+Generated decks are styled by a **theme** chosen at the start of `--generate` (see that mode's "Select a theme" step). Each theme is defined in `references/themes/<name>.md` as a CSS-variable palette + font setup + viewer overrides + decorative guidance; slides reference the shared [token contract](references/design-system.md#theme-token-contract), so a deck adopts a theme simply by pasting that theme's `:root{}` block (and font setup) into each slide.
+
+| Theme | Look |
+|-------|------|
+| `claude` *(default)* | Warm beige canvas, coral accent — calm, editorial (the original style). |
+| `classic` | Clean white-on-black, monochrome, generous whitespace — simple and elegant. |
+| `medium` | Medium.com serif (bundled Source Serif Pro), white canvas, green accent. |
+| `github` | GitHub light — white, blue accent, hairline borders, code-forward. |
+| `dark` | Near-black canvas, off-white text, violet→cyan glow — mysterious and elegant. |
+| `google` | White + Google rainbow (blue/red/yellow/green), Roboto, Material elevation. |
+| `microsoft` | Modern Fluent — Segoe UI, `#0078D4` blue, subtle depth. |
+| `twitter` | Classic blue-bird — `#1DA1F2`, Helvetica Neue, rounded tweet cards. |
+| `hand-writing` | Sketchnote — handwriting fonts + rough.js sketchy borders & rough-notation marks. |
+| `artist` | Movie-poster drama — oversized type, bold clashing gradients. |
+
+The token contract and shared (theme-independent) rules live in [references/design-system.md](references/design-system.md).
 
 ---
 
@@ -165,7 +196,7 @@ Re-run the visual QA loop against the already-generated slides — the same loop
 - **No text walls.** If a slide has more than ~60 words of body text, split it.
 - **No overflow.** All content must fit within 1280×720 without clipping. For dense content (code blocks, file trees, tables), reduce font size or split across multiple slides. See content density guidelines in [references/design-system.md](references/design-system.md).
 - **Every slide has a visual element** — icon set, grid layout, chart placeholder, diagram, color-blocked card, or image.
-- **Consistent styling** — all slides share the same color palette, font stack, and animation approach.
+- **Consistent styling** — all slides share the **selected theme's** palette tokens, font stack, and animation approach.
 - **Scannable** — use bold labels, short phrases, and structured layouts (grids, lists, cards).
 - **Footer** — include page number on content slides.
 
@@ -179,6 +210,7 @@ working-directory/
 ├── resources/                   # User-provided reference materials
 └── presentation/                # Created in --generate mode
     ├── index.html               # Viewer (from viewer-template.html)
+    ├── assets/fonts/            # Theme-bundled fonts (when a theme needs them, e.g. medium)
     ├── <deck-title>.pptx        # Created in --export pptx mode
     ├── .screenshots/            # QA scratch: slideN.png + overflow-report.json
     └── slides/
