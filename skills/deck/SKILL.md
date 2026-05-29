@@ -1,6 +1,6 @@
 ---
 name: deck
-description: Generate high-quality HTML presentation decks with a strict two-stage workflow; manually invoked only when the user runs `/deck --plan` (create PLANNING.md), `/deck --generate` (produce final slides from approved PLANNING.md), and optionally `/deck --export pptx` (export generated slides to PPTX format), supporting technical sharing, architecture reviews, strategy decks, research summaries, pitch decks, and team updates as standalone 1280x720 (16:9) HTML slides.
+description: Generate high-quality HTML presentation decks with a strict two-stage workflow; manually invoked only when the user runs `/deck --plan` (guided brief, then create PLANNING.md), `/deck --generate` (produce final slides from approved PLANNING.md), and optionally `/deck --export pptx` (export generated slides to PPTX format), supporting technical sharing, architecture reviews, strategy decks, research summaries, pitch decks, and team updates as standalone 1280x720 (16:9) HTML slides.
 ---
 
 # Deck — Presentation Deck Generator
@@ -9,7 +9,7 @@ description: Generate high-quality HTML presentation decks with a strict two-sta
 
 Parse the invocation to determine mode:
 
-- **`/deck --plan [prompt]`** — Planning mode. Create deck outline, save to `PLANNING.md`, present for review. **Do NOT generate HTML.**
+- **`/deck --plan [prompt]`** — Planning mode. From a basic prompt, run a quick guided Q&A, synthesize a structured deck brief, confirm it, then expand it into `PLANNING.md` and present for review. **Do NOT generate HTML.**
 - **`/deck --generate [optional instructions]`** — Generation mode. Produce final HTML slides from approved `PLANNING.md`, then automatically run visual QA to catch and fix overflow/layout issues. **Refuse if `PLANNING.md` is missing.**
 - **`/deck --qa [--scale N]`** — Visual QA mode. Re-run the screenshot-inspect-fix loop against already-generated slides (the same loop that runs automatically at the end of `--generate`). Useful after manual edits. **Refuse if `presentation/slides/` is missing or contains no slide HTML files.**
 - **`/deck --export pptx [--scale N]`** — Export mode. Convert generated HTML slides into a PPTX file. Optional `--scale N` controls image resolution multiplier (default 3). **Refuse if `presentation/slides/` is missing or contains no slide HTML files.**
@@ -20,25 +20,39 @@ If neither flag is provided, ask the user which mode they want.
 
 ## Planning Mode (`--plan`)
 
+Goal: turn whatever the user gives — often just a topic — into a rich, structured **deck brief**, confirm it, then expand the confirmed brief into a polished `PLANNING.md`. Brief first, plan second.
+
 1. **Check `resources/` folder**
    - If missing or empty, remind the user: _"Place relevant source materials (articles, reports, notes, images) into `resources/` before planning for best results."_
-   - If present, read and analyze all files. Summarize what was found.
+   - If present, read and analyze all files. Summarize what was found, and use them to derive candidate goals/subtopics and concrete per-slide content.
 
-2. **Analyze the user prompt**
-   - Extract: topic, audience, tone, language, slide count, goals, style preferences.
-   - If the user prompt is under-specified, ask clarifying questions (audience, slide count, language, goals).
+2. **Parse the prompt; detect present vs missing essentials**
+   - Extract whatever is given: topic/title, audience + level, goals/takeaways, language, slide count, style.
+   - Classify the essentials (see [references/brief-intake.md](references/brief-intake.md)) as PRESENT or MISSING. Essentials: **audience + background**, **goals** (unless derivable from `resources/`), **language**, **rough slide count**.
+   - Precedence for everything: explicit prompt > `resources/` > smart defaults.
+   - **Already well-specified?** If the prompt already supplies the essentials (e.g. it resembles a full brief), skip step 3 and go straight to step 4.
 
-3. **Draft the plan**
-   - Follow the structure in [references/planning-template.md](references/planning-template.md).
-   - For each slide: specify the key point, supporting bullets, and visual element type.
-   - Map content from `resources/` to specific slides — cite which resource informs which slide.
-   - Include visual/layout guidelines (colors, fonts) — use defaults from [references/design-system.md](references/design-system.md) unless the user specifies otherwise.
+3. **Guided Q&A** (one batched round, only if essentials are missing)
+   - Ask **one** round of at most 3-5 questions, covering ONLY the missing essentials. Each question must offer a **recommended default** (listed first) plus 2-4 options so the user can simply accept. See [references/brief-intake.md](references/brief-intake.md) for the field policy and an example question set.
+   - Present the batch with your agent's structured multiple-choice question tool — `AskUserQuestion` (Claude Code), `ask_user` (Copilot CLI), or `request_user_input` (Codex); one option per choice with a short label + one-line description, recommended first. Fallback: ask the same set as a short numbered list in one message and let the user reply _"defaults"_ to accept all.
+   - Do **not** ask a second round, and never ask about fields you can infer — state those as assumptions in the brief for the user to override.
 
-4. **Save to `PLANNING.md`** in the working directory.
+4. **Synthesize the deck brief**
+   - Fill the **Deck Brief Template** in [references/brief-intake.md](references/brief-intake.md): title, session type, length ± tolerance, language, audience + level, goals (priority order, each with subtopics and an emphasis/allocation — mark the KEY goal and give it ~50% of slides), style with Do/Don't rules, content rules (one takeaway/slide, explain jargon on first use, diagrams over text, code only where load-bearing), and resources to use.
+   - Infer everything not asked from topic + audience + [references/design-system.md](references/design-system.md). State assumptions explicitly. Keep the brief tight (about the length of the worked example).
 
-5. **Present the plan** to the user for review. Summarize slide count, structure, and key decisions. Ask for approval or revision feedback.
+5. **Confirm the brief**
+   - Show the brief to the user and ask for a quick **OK or tweak**. Apply any edits and re-show. Do **not** expand into `PLANNING.md` until the brief is approved.
 
-6. **Stop.** Do NOT proceed to generation.
+6. **Expand the confirmed brief into `PLANNING.md`**
+   - Follow [references/planning-template.md](references/planning-template.md). The confirmed brief becomes the **header** (Task / Slide count ± tolerance / Language / Audience / Goals / Style) plus the **Content & Tone Guidelines** section.
+   - **Visual & Layout Guidelines**: fill verbatim from [references/design-system.md](references/design-system.md) (colors, Inter typography, 1280x720, footer, density rules) unless the brief specified brand colors.
+   - **Slide-by-Slide Outline**: let the goal **emphasis/allocation drive how many content slides each section gets** (the KEY goal gets the most — e.g. ~50%). Reserve cover + agenda + closing. For each slide write the actual key point (single takeaway), 2-4 supporting bullets, and a visual element, choosing a pattern from [references/slide-patterns.md](references/slide-patterns.md). Place code only on the slides the brief authorizes.
+   - **Data Sources & References**: map each `resources/` file to slides; if none, note the content is synthesized.
+   - **Deliverables**: standard block; offer `PRESENTATION_SUMMARY.md` / `PRESENTATION_SCRIPT.md` for 8+ slides.
+   - Save to `PLANNING.md` in the working directory.
+
+7. **Present & stop.** Summarize slide count, section allocation, and key decisions; ask for approval or revisions. **Do NOT proceed to generation.**
 
 ---
 

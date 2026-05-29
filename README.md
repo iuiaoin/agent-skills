@@ -10,7 +10,7 @@ A collection of reusable skills for AI coding agents (Claude Code, etc.). Each s
 
 HTML presentation deck generator with a strict two-stage workflow:
 
-- **`/deck --plan <prompt>`** — Analyze user prompt and reference materials in `resources/`, produce a slide-by-slide outline saved to `PLANNING.md`
+- **`/deck --plan <prompt>`** — From a basic prompt, run a quick guided Q&A and synthesize a structured deck brief (using your prompt and any materials in `resources/`), confirm it, then expand it into a slide-by-slide outline saved to `PLANNING.md`
 - **`/deck --generate`** — Generate standalone HTML slides (1280x720, 16:9) from the approved plan, with a built-in presentation viewer — then automatically screenshot every slide and fix any overflow or broken-layout issues before opening
 
 Bonus:
