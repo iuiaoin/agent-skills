@@ -1,27 +1,59 @@
 # Deck Design System
 
-Default visual system for generated decks. Users may override any of these in their prompt or PLANNING.md.
+Theme-agnostic design rules for generated decks. **Colors and fonts come from the selected theme** (see [themes/](themes/) and the registry in `SKILL.md`); everything else here — dimensions, type scale, animations, density, layout — is shared by all themes. The color theme is chosen at `/deck --generate`, not in the plan.
 
-## Color Palette (Default: Claude.com Style)
+## Theme Token Contract
 
-| Role | Color | Usage |
-|------|-------|-------|
-| Background | `#F7F4EF` | Warm beige, slide background |
-| Primary text | `#2B2A27` | Deep charcoal, titles and body |
-| Secondary text | `#5D4E42` | Medium brown, subtitles and captions |
-| Accent (primary) | `#E07A59` | Coral orange — borders, icons, key data |
-| Accent (secondary) | `#9FD3B8` | Mint green — secondary highlights |
-| Strong text | `#4A3F35` | Dark brown-black, bold emphasis |
+Every theme defines the same set of CSS custom properties. Slide patterns reference these tokens (`var(--…)`) instead of hardcoded colors, so a deck is themed simply by pasting the chosen theme's `:root{}` block into the top of each slide's `<style>`. Each theme file (`themes/<name>.md`) provides concrete values for all of these:
 
-**Rules**: No high-saturation neon colors. Keep palette warm and restrained.
+```css
+:root {
+  /* Surfaces */
+  --slide-bg:        /* slide background */;
+  --slide-bg-rgb:    /* same color as "r,g,b" for rgba() */;
+  --surface:         /* cards, code blocks, info panels */;
+  --border:          /* hairline borders */;
 
-## Typography
+  /* Text */
+  --text-primary:    /* titles, body */;
+  --text-secondary:  /* subtitles, captions */;
+  --text-strong:     /* bold emphasis */;
 
-- **Headings**: `Inter`, weight 600-700, sizes 48-72px, letter-spacing -0.5 to -1px
-- **Body**: `Inter`, weight 400-500, sizes 18-30px, line-height 1.5-1.7
-- **Chinese fallback**: `PingFang SC`, `Microsoft YaHei`, `Hiragino Sans GB`
-- **Code**: `Source Code Pro`, monospace
-- **Import**: `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');`
+  /* Accents */
+  --accent:          /* primary accent — bars, icons, key data, links */;
+  --accent-rgb:      /* same color as "r,g,b" */;
+  --accent-2:        /* secondary accent */;
+  --accent-2-rgb:    /* same color as "r,g,b" */;
+  --heading-gradient:/* gradient for clipped headings; solid themes use two equal stops */;
+
+  /* Status / table semantics */
+  --ok:              /* check / positive */;
+  --warn:            /* warning */;
+  --muted:           /* dash / disabled */;
+
+  /* Typography */
+  --font-heading:    /* heading font stack */;
+  --font-body:       /* body font stack */;
+  --font-code:       /* monospace stack */;
+
+  /* Shape */
+  --card-radius:     /* card/border radius */;
+  --shadow:          /* default card shadow */;
+}
+```
+
+**Why `*-rgb` triplets:** decorative shapes use the accent with alpha, e.g. `rgba(var(--accent-rgb), 0.15)`. **Why `--heading-gradient` is always a gradient:** the cover heading uses `background-clip: text`, so even solid-color themes define it as `linear-gradient(90deg, COLOR, COLOR)`.
+
+Themes also ship a **font setup** (a Google Fonts `@import`, a local `@font-face`, or a system stack) and a **viewer-override** snippet — see each theme file.
+
+## Typography (scale is universal; family comes from `--font-*`)
+
+- **Headings**: `var(--font-heading)`, weight 600-700, sizes 48-72px, letter-spacing -0.5 to -1px
+- **Body**: `var(--font-body)`, weight 400-500, sizes 18-30px, line-height 1.5-1.7
+- **Chinese fallback**: append `'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB'` to the body/heading stacks
+- **Code**: `var(--font-code)`, monospace
+
+Some themes intentionally break this scale for effect (e.g. `artist` uses oversized uppercase display type); follow the theme file when it overrides the default.
 
 ## Slide Dimensions
 
@@ -69,11 +101,13 @@ All content must fit within the 1280×720 canvas without overflow or clipping.
 ## Links
 
 - All links in slides should include `target="_blank" rel="noopener"` since slides are rendered inside iframes.
-- Style links to match the accent color (`#E07A59`) with `text-decoration: none`.
+- Style links to match the accent color (`color: var(--accent)`) with `text-decoration: none`.
 
 ## Decorative Elements
 
-- Background accent shapes: radial gradients with low opacity (0.08-0.15)
-- Card style: rounded corners (8-12px), subtle shadow `0 4px 12px rgba(0,0,0,0.05)`
-- Borders: 1px solid with muted colors
-- Bullet markers: Colored bars (12x28px with accent color) or large accent-colored dots
+- Background accent shapes: radial gradients with low opacity, e.g. `radial-gradient(circle, rgba(var(--accent-rgb), 0.15) 0%, transparent 70%)`
+- Card style: rounded corners (`var(--card-radius)`), subtle shadow (`var(--shadow)`)
+- Borders: 1px solid `var(--border)`
+- Bullet markers: Colored bars (12x28px in `var(--accent)`) or large accent-colored dots
+
+Themes may override these conventions (e.g. `classic` drops decorative shapes; `hand-writing` draws borders with rough.js; `artist` uses dramatic full-bleed gradients). The theme file is authoritative for its own decorative style.

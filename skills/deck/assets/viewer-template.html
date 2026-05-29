@@ -19,6 +19,10 @@
             --card-radius: 4px;
             --btn-radius: 4px;
         }
+        /* Theme override: generation replaces the token below with the selected theme's
+           viewer-override :root{} block (from references/themes/<name>.md). It comes after the
+           defaults above, so its values win. The neutral defaults apply if left unthemed. */
+        {{VIEWER_THEME}}
         * {
             margin: 0; padding: 0; box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;

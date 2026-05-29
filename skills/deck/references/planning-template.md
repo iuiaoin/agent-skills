@@ -21,12 +21,10 @@ Use this structure when generating `PLANNING.md` during `--plan` mode. Adapt sec
 
 ## Visual & Layout Guidelines
 
-- **Overall tone**: [e.g., warm, minimal, lots of whitespace]
-- **Background**: [hex color + description]
-- **Primary text**: [hex color]
-- **Accent (primary)**: [hex color + usage]
-- **Accent (secondary)**: [hex color + usage]
-- **Typography**: [Font families, weights, sizes]
+- **Color theme**: chosen at `/deck --generate` (see the Themes catalog) — do not fix a palette here.
+- **Brand override** (optional): [only if the brief specified brand colors — hex values to layer on the chosen theme's accent]
+- **Canvas**: 1280×720 (16:9); keep content within safe margins (≥60px from edges)
+- **Typography**: type scale from design-system.md (headings 48-72px, body 18-30px); the font family comes from the selected theme
 - **Per-slide rule**: 1 key point + up to 4 supporting bullets; avoid large blocks of text
 - **Footer**: page number + brief section name
 

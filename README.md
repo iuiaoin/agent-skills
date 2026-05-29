@@ -11,7 +11,11 @@ A collection of reusable skills for AI coding agents (Claude Code, etc.). Each s
 HTML presentation deck generator with a strict two-stage workflow:
 
 - **`/deck --plan <prompt>`** — From a basic prompt, run a quick guided Q&A and synthesize a structured deck brief (using your prompt and any materials in `resources/`), confirm it, then expand it into a slide-by-slide outline saved to `PLANNING.md`
-- **`/deck --generate`** — Generate standalone HTML slides (1280x720, 16:9) from the approved plan, with a built-in presentation viewer — then automatically screenshot every slide and fix any overflow or broken-layout issues before opening
+- **`/deck --generate`** — Pick a visual theme (10 built-in), then generate standalone HTML slides (1280x720, 16:9) from the approved plan, with a built-in presentation viewer that adopts the same theme — then automatically screenshot every slide and fix any overflow or broken-layout issues before opening
+
+Themes — at the start of generation you choose one of 10 built-in themes; every slide and the viewer adopt its palette, fonts, and decoration:
+
+- `claude` · `classic` · `medium` · `github` · `dark` · `google` · `microsoft` · `twitter` · `hand-writing` (sketchy [rough.js](https://github.com/rough-stuff/rough) style) · `artist`
 
 Bonus:
 

@@ -19,7 +19,7 @@ How to turn a sparse `--plan` prompt into a rich, structured **deck brief** befo
 | Style & tone | INFER | from deck type + [design-system.md](design-system.md) |
 | Goal emphasis / allocation | INFER | KEY goal ~50% of slides; state it |
 | Content rules | INFER | one takeaway/slide; explain jargon on first use; diagrams over text; code only where load-bearing |
-| Visual & layout guidelines | INFER | verbatim from [design-system.md](design-system.md) |
+| Visual & layout guidelines | INFER (theme-neutral) | canvas / type-scale / density from [design-system.md](design-system.md); **color theme is chosen at `--generate`**, not in the brief |
 | Title | INFER | clean title from the topic |
 | Presenter / date | INFER | `[Presenter Name]` + today's date placeholders |
 
