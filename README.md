@@ -1,8 +1,6 @@
 # Agent Skills
 
-A collection of reusable skills for AI coding agents (Claude Code, etc.). Each skill is a self-contained package that extends an agent's capabilities with specialized workflows, domain knowledge, and bundled resources.
-
-> 💡 Works best with Claude Code and Opus model for highest quality output.
+A collection of reusable skills for AI coding agents (Claude Code, Codex, Copilot, etc.). Each skill is a self-contained package that extends an agent's capabilities with specialized workflows, domain knowledge, and bundled resources.
 
 ## Skills
 
