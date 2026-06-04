@@ -84,7 +84,7 @@ Goal: turn whatever the user gives — often just a topic — into a rich, struc
      - `medium`: copy the four `assets/fonts/source-serif-pro-*.woff` files from the skill into `presentation/assets/fonts/` so the `@font-face` URLs resolve.
      - `hand-writing`: add the rough.js + rough-notation `<script>` tags and init snippet (from `themes/hand-writing.md`) at the end of each slide's `<body>`; mark boxes with `class="sketch"` and emphasis text with `data-annotate="…"`.
    - Incorporate content synthesized from `resources/` as specified in the plan.
-   - Include animations (fade-in, staggered reveals) per the design system.
+   - **Animate every slide, consistently.** Apply the design system's fade-in / staggered-reveal approach to every slide's primary content — heading first, then cards / list items / table rows / columns via `animation-delay` increments — on **all** slide types (content, two-column, table, closing), not just the cover and agenda. Each pattern in slide-patterns.md already bakes this in; keep it (and the `@keyframes` it references, e.g. `fadeInContent` / `slideInUp`) when you adapt the pattern. Animations must finish within ~1.5s so the visual-QA screenshots capture the settled slide.
 
 6. **Generate the viewer**
    - Copy `assets/viewer-template.html` to `presentation/index.html`.

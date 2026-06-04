@@ -77,9 +77,11 @@ Some themes intentionally break this scale for effect (e.g. `artist` uses oversi
 }
 ```
 
+- **Every slide animates** — not just the cover and agenda. Animate the heading first, then stagger its cards / list items / table rows / columns. Never leave a content, two-column, table, or closing slide static; all slides share one animation approach.
 - Use `animation-delay` increments of 0.1s for staggered items
 - Duration: 0.5-1.2s, easing: `ease-out` or `ease-in-out`
 - Decorative shapes: `scale(0.8)` to `scale(1)` over 2s
+- Keep the full reveal (max `animation-delay` + duration) under ~1.5s. The visual-QA screenshots fire ~2.5s after load, so anything slower risks being captured mid-animation or blank.
 
 ## Layout Patterns
 
