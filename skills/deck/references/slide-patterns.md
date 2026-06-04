@@ -191,13 +191,18 @@ Title + side-by-side image and text list. Good for architecture diagrams.
 ```html
 <style>
   .slide { display: flex; flex-direction: column; padding: 60px; }
-  h1 { font-family: var(--font-heading); color: var(--text-primary); font-size: 52px; font-weight: 700; margin: 0 0 35px; text-align: center; }
+  h1 { font-family: var(--font-heading); color: var(--text-primary); font-size: 52px; font-weight: 700; margin: 0 0 35px; text-align: center; animation: slideInUp 0.6s ease-out; }
   .content-container { display: flex; flex: 1; gap: 40px; align-items: center; }
-  .image-section { flex: 1; display: flex; justify-content: center; align-items: center; }
+  .image-section { flex: 1; display: flex; justify-content: center; align-items: center; opacity: 0; animation: fadeInContent 0.8s 0.2s ease-out forwards; }
   .image-section img { max-width: 100%; max-height: 450px; object-fit: contain; border-radius: var(--card-radius); box-shadow: var(--shadow); }
   .text-section { flex: 1; }
   .layers-list { list-style: none; padding: 0; counter-reset: layer-counter; }
-  .layers-list li { color: var(--text-secondary); font-size: 19px; line-height: 1.6; display: flex; margin-bottom: 12px; }
+  .layers-list li { color: var(--text-secondary); font-size: 19px; line-height: 1.6; display: flex; margin-bottom: 12px; opacity: 0; animation: slideInUp 0.5s ease-out forwards; }
+  .layers-list li:nth-child(1) { animation-delay: 0.3s; }
+  .layers-list li:nth-child(2) { animation-delay: 0.4s; }
+  .layers-list li:nth-child(3) { animation-delay: 0.5s; }
+  .layers-list li:nth-child(4) { animation-delay: 0.6s; }
+  .layers-list li:nth-child(5) { animation-delay: 0.7s; }
   .layers-list li::before { content: counter(layer-counter); counter-increment: layer-counter; color: var(--accent); font-weight: 700; font-size: 20px; margin-right: 12px; min-width: 22px; }
   .layers-list strong { color: var(--text-strong); font-weight: 600; margin-right: 8px; }
 </style>
@@ -212,9 +217,11 @@ Side-by-side code example and info/config panel. Good for technical demos.
 ```html
 <style>
   .slide { display: flex; flex-direction: column; padding: 60px 80px; }
-  h1 { font-family: var(--font-heading); font-size: 52px; color: var(--text-primary); text-align: center; margin: 0 0 50px; font-weight: 700; }
+  h1 { font-family: var(--font-heading); font-size: 52px; color: var(--text-primary); text-align: center; margin: 0 0 50px; font-weight: 700; animation: slideInUp 0.6s ease-out; }
   .content-wrapper { display: flex; gap: 60px; flex: 1; height: 0; }
-  .column { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .column { flex: 1; display: flex; flex-direction: column; min-width: 0; opacity: 0; animation: fadeInContent 0.7s ease-out forwards; }
+  .column:nth-child(1) { animation-delay: 0.2s; }
+  .column:nth-child(2) { animation-delay: 0.35s; }
   .column h2 { font-size: 26px; color: var(--text-secondary); margin: 0 0 20px; font-weight: 700; }
   .code-block {
     background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--card-radius);
@@ -239,7 +246,7 @@ Full-width table with header row and data rows. Use icons/symbols for quick scan
 ```html
 <style>
   .slide { padding: 50px 60px; display: flex; flex-direction: column; }
-  h1 { font-family: var(--font-heading); font-size: 44px; color: var(--text-primary); margin: 0 0 30px; text-align: center; }
+  h1 { font-family: var(--font-heading); font-size: 44px; color: var(--text-primary); margin: 0 0 30px; text-align: center; animation: slideInUp 0.6s ease-out; }
   table { width: 100%; border-collapse: collapse; font-size: 15px; }
   th {
     background-color: var(--text-primary); color: var(--slide-bg); padding: 12px 16px;
@@ -247,6 +254,13 @@ Full-width table with header row and data rows. Use icons/symbols for quick scan
   }
   td { padding: 10px 16px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
   tr:nth-child(even) td { background-color: rgba(var(--slide-bg-rgb),0.5); }
+  tbody tr { opacity: 0; animation: fadeInContent 0.5s ease-out forwards; }
+  tbody tr:nth-child(1) { animation-delay: 0.25s; }
+  tbody tr:nth-child(2) { animation-delay: 0.35s; }
+  tbody tr:nth-child(3) { animation-delay: 0.45s; }
+  tbody tr:nth-child(4) { animation-delay: 0.55s; }
+  tbody tr:nth-child(5) { animation-delay: 0.65s; }
+  tbody tr:nth-child(6) { animation-delay: 0.75s; }
   td:first-child { font-weight: 600; color: var(--text-primary); }
   .check { color: var(--ok); }   /* positive check */
   .warn { color: var(--warn); }   /* warning */
@@ -276,8 +290,8 @@ Centered, minimal. Similar to cover but simpler.
     display: flex; flex-direction: column; justify-content: center;
     align-items: center; text-align: center;
   }
-  h1 { font-family: var(--font-heading); font-size: 72px; color: var(--text-primary); margin: 0 0 30px; font-weight: 700; }
-  p { font-size: 28px; color: var(--text-secondary); max-width: 700px; line-height: 1.6; }
+  h1 { font-family: var(--font-heading); font-size: 72px; color: var(--text-primary); margin: 0 0 30px; font-weight: 700; opacity: 0; animation: fadeInContent 1s ease-in-out forwards; }
+  p { font-size: 28px; color: var(--text-secondary); max-width: 700px; line-height: 1.6; opacity: 0; animation: fadeInContent 1s ease-in-out 0.2s forwards; }
 </style>
 <div class="slide">
   <h1>Thank You</h1>
