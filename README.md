@@ -44,16 +44,10 @@ skill-name/
 
 ## Installation
 
-To use a skill, copy the skill directory into your `skills/`, taking the deck skill as an example:
-
-**Claude Code**
+Install any skill straight from this repo with [`npx skills`](https://github.com/vercel-labs/skills):
 
 ```bash
-cp -r skills/deck ~/.claude/skills/deck
+npx skills add iuiaoin/agent-skills --skill deck -g
 ```
 
-**Codex Cli and others**
-
-```bash
-cp -r skills/deck ~/.agents/skills/deck
-```
+`-g` installs globally (drop it for the current project); swap `--skill deck` for another skill, or use `--all` for every skill.
