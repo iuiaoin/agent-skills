@@ -51,3 +51,5 @@ npx skills add iuiaoin/agent-skills --skill deck -g
 ```
 
 `-g` installs globally (drop it for the current project); swap `--skill deck` for another skill, or use `--all` for every skill.
+
+Update later with `npx skills update deck`.
