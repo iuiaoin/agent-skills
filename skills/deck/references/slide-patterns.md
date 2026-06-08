@@ -40,6 +40,7 @@ Every slide HTML follows this skeleton. The theme's `:root{}` + font setup goes 
     html, body {
       -ms-overflow-style: none;
       scrollbar-width: none;
+      overflow: hidden;
     }
     html::-webkit-scrollbar,
     body::-webkit-scrollbar {
