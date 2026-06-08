@@ -136,10 +136,11 @@
         // {{SLIDES_ARRAY}} - Replace with actual slide paths, e.g.: const slides = ["slides/slide1.html", "slides/slide2.html", ...];
         const slides = [{{SLIDES_ARRAY}}];
         let currentSlideIndex = 0;
+        let loadedSrc = null; // slide currently loaded in the presentation iframe
         let viewMode = 'list';
         const previewContainer = document.getElementById('preview-container');
         const presentationMode = document.getElementById('presentation-mode');
-        const presentationSlide = document.getElementById('presentation-slide');
+        let presentationSlide = document.getElementById('presentation-slide');
         const playButton = document.getElementById('play-button');
         const prevButton = document.getElementById('prev-slide');
         const nextButton = document.getElementById('next-slide');
@@ -158,6 +159,7 @@
             generatePreviews();
             gridViewBtn.addEventListener('click', () => setViewMode('grid'));
             listViewBtn.addEventListener('click', () => setViewMode('list'));
+            applyHash(); // honor a deep link like index.html#3 on first load
         }
         function generatePreviews() {
             previewContainer.innerHTML = '';
@@ -192,13 +194,43 @@
                 frame.style.transform = `translate(-50%, -50%) scale(${scale})`;
             });
         }
-        function startPresentation(index = 0) {
+        // Each slide has its own URL while playing: the hash (#1, #2, …, 1-based) is the
+        // single source of truth for play mode. A valid hash means the play overlay is open
+        // on that slide; no/invalid hash means preview mode. This makes slides refreshable,
+        // shareable, and navigable with the browser Back/Forward buttons.
+        function slideIndexFromHash() {
+            const m = /^#(\d+)$/.exec(location.hash);
+            if (!m) return null;
+            const index = parseInt(m[1], 10) - 1;
+            return (index >= 0 && index < slides.length) ? index : null;
+        }
+        function hashForIndex(index) { return '#' + (index + 1); }
+        function applyHash() {
+            const index = slideIndexFromHash();
+            if (index === null) { closePresentationUI(); return; }
+            openPresentationUI();
             currentSlideIndex = index;
+            updateSlide();
+        }
+        function openPresentationUI() {
+            if (presentationMode.style.display === 'flex') return;
             presentationMode.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-            updateSlide();
             presentationMode.focus();
-            requestFullscreen();
+        }
+        function closePresentationUI() {
+            if (presentationMode.style.display !== 'flex') return;
+            if (isFullscreen) exitFullscreenFn();
+            presentationMode.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        function startPresentation(index = 0) {
+            index = Math.max(0, Math.min(slides.length - 1, index));
+            openPresentationUI();
+            currentSlideIndex = index;
+            updateSlide();
+            requestFullscreen(); // user gesture (Play / preview click) — fullscreen allowed here
+            if (location.hash !== hashForIndex(index)) location.hash = hashForIndex(index);
         }
         function requestFullscreen() {
             const el = presentationMode;
@@ -228,12 +260,25 @@
             controlsTimeout = setTimeout(() => { if (isFullscreen) presentationControls.classList.remove('show'); }, 3000);
         }
         function exitPresentation() {
-            if (isFullscreen) exitFullscreenFn();
-            presentationMode.style.display = 'none';
-            document.body.style.overflow = 'auto';
+            // Drop the hash so the URL returns to the bare index.html (preview mode).
+            // replaceState doesn't fire hashchange, so close the UI directly.
+            if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+            closePresentationUI();
         }
         function updateSlide() {
-            presentationSlide.src = slides[currentSlideIndex];
+            // Load the slide into a FRESH iframe rather than reusing the existing one. Setting
+            // .src on the existing iframe pushes a browser-history entry on top of the hash
+            // entry, which would make Back/Forward need two presses per slide; a brand-new
+            // iframe's initial load adds no history entry. Guard on loadedSrc so a redundant
+            // applyHash re-render (e.g. right after startPresentation) doesn't reload the slide.
+            const target = slides[currentSlideIndex];
+            if (loadedSrc !== target) {
+                loadedSrc = target;
+                const fresh = presentationSlide.cloneNode(false); // keep id/class/title/frameborder
+                fresh.src = target;
+                presentationSlide.replaceWith(fresh);
+                presentationSlide = fresh;
+            }
             currentSlideElement.textContent = currentSlideIndex + 1;
             progressFill.style.width = `${((currentSlideIndex + 1) / slides.length) * 100}%`;
             scalePresentationSlide();
@@ -248,8 +293,10 @@
             else { w = c.clientWidth - 40; h = c.clientHeight - 40; }
             presentationSlide.style.transform = `scale(${Math.min(w / 1280, h / 720)})`;
         }
-        function nextSlide() { if (currentSlideIndex < slides.length - 1) { currentSlideIndex++; updateSlide(); } }
-        function prevSlide() { if (currentSlideIndex > 0) { currentSlideIndex--; updateSlide(); } }
+        // Navigate by changing the hash; applyHash() (via hashchange) does the rendering.
+        // Each step pushes a history entry, so browser Back/Forward walk through the slides.
+        function nextSlide() { if (currentSlideIndex < slides.length - 1) location.hash = hashForIndex(currentSlideIndex + 1); }
+        function prevSlide() { if (currentSlideIndex > 0) location.hash = hashForIndex(currentSlideIndex - 1); }
         playButton.addEventListener('click', () => startPresentation(0));
         prevButton.addEventListener('click', () => { prevSlide(); showControlsTemporarily(); });
         nextButton.addEventListener('click', () => { nextSlide(); showControlsTemporarily(); });
@@ -257,6 +304,7 @@
         fullscreenToggle.addEventListener('click', () => { toggleFullscreen(); showControlsTemporarily(); });
         document.addEventListener('fullscreenchange', handleFullscreenChange);
         document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        window.addEventListener('hashchange', applyHash); // Back/Forward + manual URL edits
         presentationMode.addEventListener('mousemove', showControlsTemporarily);
         window.addEventListener('blur', () => {
             if (presentationMode.style.display === 'flex') {
