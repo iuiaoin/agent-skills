@@ -91,6 +91,7 @@ Goal: turn whatever the user gives — often just a topic — into a rich, struc
    - Replace `{{DECK_TITLE}}` with the deck title from PLANNING.md.
    - Replace `{{SLIDES_ARRAY}}` with the actual slide paths: `"slides/slide1.html", "slides/slide2.html", ...`
    - Replace `{{VIEWER_THEME}}` with the chosen theme's **Viewer overrides** `:root{}` block (from `themes/<name>.md`) so the viewer frame matches the deck.
+   - Verify `presentation/index.html` contains no unresolved template placeholders (`{{...}}`) after substitution. If any remain, fix them before visual QA or opening the browser.
    - **Per-slide URLs:** while playing, the viewer reflects the current slide in the URL hash (`index.html#3` = slide 3), so a slide can be refreshed, deep-linked, and navigated with browser Back/Forward; preview mode stays at the bare `index.html`. This ships inside the template — no substitution needed.
 
 7. **Optional deliverables** (generate if the plan requests them or the deck has 8+ slides)
