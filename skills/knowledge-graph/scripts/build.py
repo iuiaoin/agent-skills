@@ -20,9 +20,11 @@ Stdlib only. Usage:
   --docs       all (default): render every surveyed page; linked: only pages
                referenced by nodes; none: no reader, links point at the source
                files directly.
-  --link-base  Only used with --docs none: prefix for source links (e.g. a
-               published wiki base URL). Defaults to file:// into the surveyed
-               folder.
+  --link-base  Prefix for source-document links instead of the local reader,
+               e.g. 'https://dev.azure.com/org/_wiki/wikis/X.wiki?pagePath=Wiki/'.
+               An http(s) value implies --docs none and strips the source file
+               extension from links (wiki pages have no .md); --keep-ext opts
+               out. Defaults to file:// into the surveyed folder.
 """
 
 import argparse
@@ -267,10 +269,16 @@ def main():
     ap.add_argument("--subtitle", help="Override the auto subtitle")
     ap.add_argument("--docs", choices=["all", "linked", "none"], default=None,
                     help="Render source pages into <out-dir>/docs/ (default: all "
-                         "when a local survey is given, none otherwise)")
+                         "when a local survey is given, none when --link-base "
+                         "is an http(s) URL)")
     ap.add_argument("--link-base", dest="link_base", default=None,
-                    help="With --docs none: prefix for source-document links "
-                         "(default: file:// path of the surveyed folder)")
+                    help="Prefix for source-document links instead of the local "
+                         "reader — e.g. a published wiki URL ('https://...?pagePath=Wiki/'). "
+                         "An http(s) value skips the reader and drops the source "
+                         "file extension from links (wiki pages have no .md)")
+    ap.add_argument("--keep-ext", action="store_true",
+                    help="With an http(s) --link-base: keep the source file "
+                         "extension in links instead of stripping it")
     ap.add_argument("--template",
                     default=os.path.join(ASSETS_DIR, "viewer-template.html"))
     args = ap.parse_args()
@@ -322,6 +330,7 @@ def main():
                  "page list and titles)")
 
     docs_count = 0
+    strip_ext = False
     if docs_mode != "none":
         node_paths = {n.get("path") for n in graph.get("nodes", []) if n.get("path")}
         docs_count, docs_dir = render_docs(survey, args.out, docs_mode, node_paths)
@@ -334,6 +343,9 @@ def main():
         if link_base and not (link_base.endswith("/") or link_base.endswith("=")):
             link_base += "/"
         doc_suffix = ""
+        # published wikis address pages without the source file extension
+        strip_ext = bool(link_base and re.match(r"https?://", link_base)
+                         and not args.keep_ext)
 
     payload = {
         "title": title,
@@ -342,6 +354,7 @@ def main():
         "generated": date.today().isoformat(),
         "linkBase": link_base or "",
         "docSuffix": doc_suffix,
+        "stripExt": strip_ext,
         "graph": {
             "groups": graph.get("groups", []),
             "nodes": graph.get("nodes", []),
