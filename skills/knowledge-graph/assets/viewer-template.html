@@ -325,7 +325,12 @@ document.getElementById("stat-src").textContent =
 
 function docHref(node) {
   if (!node.path) return null;
-  const enc = node.path.split("/").map(encodeURIComponent).join("/");
+  let p = node.path;
+  if (payload.stripExt) p = p.replace(/\.(md|markdown|mdx|txt|rst|adoc|html|htm)$/i, "");
+  let enc = p.split("/").map(encodeURIComponent).join("/");
+  // published-wiki mode: filenames like "Q%2A-training" are already URL-encoded
+  // page names — keep their escapes instead of double-encoding the "%"
+  if (payload.stripExt) enc = enc.replace(/%25([0-9A-Fa-f]{2})/g, "%$1");
   return (payload.linkBase || "") + enc + (payload.docSuffix || "");
 }
 

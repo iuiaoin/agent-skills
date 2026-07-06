@@ -34,9 +34,9 @@ Supports technical sharing talks, architecture reviews, strategy decks, research
 
 Turn any docs folder, wiki, or knowledge base into an interactive knowledge map:
 
-- **`/knowledge-graph <path-to-docs> [focus]`** — survey the folder with a script (titles, sections, cross-page links, `.order` files), distill it into concepts, domains, and reader journeys, then build a **self-contained HTML map**: a force-directed concept graph with no server, CDN, or network dependency
+- **`/knowledge-graph <path-to-docs> [focus] [--linkbase <url>]`** — survey the folder with a script (titles, sections, cross-page links, `.order` files), distill it into concepts, domains, and reader journeys, then build a **self-contained HTML map**: a force-directed concept graph with no server, CDN, or network dependency
 - Viewer features — search (`/`), group show/hide via legend, hover to highlight neighborhoods, click a node for a detail panel with summary + link back to the source document, edge-label toggle, accessible table view, light/dark theme
-- **Built-in markdown reader** — every surveyed page is also rendered into `knowledge-graph/docs/` as an elegant, theme-aware HTML document (breadcrumbs, contents sidebar, tables/code/task-lists, images), with internal wiki links rewritten to other reader pages — clicking a node's source document never dumps raw markdown in the browser
+- **Built-in markdown reader** — every surveyed page is also rendered into `knowledge-graph/docs/` as an elegant, theme-aware HTML document (breadcrumbs, contents sidebar, tables/code/task-lists, images), with internal wiki links rewritten to other reader pages — clicking a node's source document never dumps raw markdown in the browser; or pass `--linkbase <url>` to skip the reader and link nodes straight to the published wiki (source extension stripped)
 - Works on plain markdown folders and Azure DevOps-style wikis (URL-encoded filenames, `.order` navigation, full-URL self-links); survey scales to thousands of pages, and generated node links are validated against the real file list before the map builds
 - Everything lands in `./knowledge-graph/` in your working directory, with relative links throughout — the folder is portable as a unit; refinements only edit `graph.json` and rebuild, no re-survey
 

@@ -1,6 +1,6 @@
 ---
 name: knowledge-graph
-description: Turn any docs folder, wiki, or knowledge base into an interactive knowledge map — a standalone HTML force-directed graph of concepts, domains, and reader journeys, with search, group filtering, and per-node links back to the source documents. Manually invoked via the /knowledge-graph command with a path to the docs/wiki folder; also fits requests like "map this wiki", "visualize our docs as a graph", or "make a knowledge graph of this folder".
+description: Turn any docs folder, wiki, or knowledge base into an interactive knowledge map — a standalone HTML force-directed graph of concepts, domains, and reader journeys, with search, group filtering, and per-node links back to the source documents. Manually invoked via the /knowledge-graph command with a path to the docs/wiki folder, optionally followed by a focus hint and "--linkbase" plus a published wiki URL to make nodes link to the online wiki; also fits requests like "map this wiki", "visualize our docs as a graph", or "make a knowledge graph of this folder".
 ---
 
 # Knowledge Graph — Interactive Map of a Knowledge Base
@@ -12,11 +12,20 @@ self-contained HTML viewer. The output needs no server, CDN, or network — one 
 
 ## Workflow
 
-### 1. Locate the source
+### 1. Locate the source; parse options
 
-The invocation should name one folder — the knowledge base root (e.g.
-`/knowledge-graph ~/wiki` or `/knowledge-graph ./docs "focus on onboarding"`).
-Extra prose in the invocation is guidance for what the map should emphasize.
+Invocation shape: `/knowledge-graph <path-to-docs> [focus] [--linkbase <url>]`.
+It should name one folder — the knowledge base root (e.g. `/knowledge-graph
+~/wiki` or `/knowledge-graph ./docs "focus on onboarding"`). Remaining prose is
+guidance for what the map should emphasize.
+
+**`--linkbase <url>`** (optional) — the knowledge base is published (e.g. an
+Azure DevOps wiki:
+`--linkbase "https://dev.azure.com/org/proj/_wiki/wikis/X.wiki?pagePath=Wiki/"`).
+Node links then open the online wiki instead of a local reader: skip the
+markdown reader entirely (no `docs/` folder) and pass the URL to build.py in
+step 5, which appends each node's path with the trailing `.md` stripped
+(`<url>` + `10-Inference/Inference-via-Bus`).
 
 If no folder was given, ask for it. If the request is ambiguous between folders,
 ask with your agent's structured question tool — `AskUserQuestion` (Claude Code),
@@ -73,10 +82,18 @@ By default it also renders **every surveyed page** into `knowledge-graph/docs/`
 as a styled, theme-aware HTML reader (markdown rendered client-side; internal
 wiki links rewritten to other reader pages; images loaded from the source
 folder). Map links open the reader via relative URLs, so the whole
-`knowledge-graph/` folder is portable. Flags: `--docs linked` renders only
-node-linked pages, `--docs none` skips the reader and links straight to source
-files, `--link-base <url>` (with `--docs none`) points links at a published wiki
-instead.
+`knowledge-graph/` folder is portable.
+
+**If the user passed `--linkbase <url>`**, add `--link-base "<url>"` to the
+build.py command instead. An http(s) link-base automatically skips the reader
+(no `docs/` is generated) and links each node straight to the published wiki,
+dropping the source file extension (`.../Inference-via-Bus.md` →
+`<url>10-Inference/Inference-via-Bus`); already-URL-encoded filenames like
+`Q%2A-training` are passed through, not double-encoded. `--keep-ext` keeps the
+extension if the target actually serves raw files.
+
+Other flags: `--docs linked` renders only node-linked pages; `--docs none`
+skips the reader and links to local source files.
 
 ### 6. Verify, deliver, iterate
 
@@ -87,7 +104,9 @@ instead.
   too (e.g. `knowledge-graph/map-check.png`) and tell the user they are safe to
   delete. Drag-test is not needed — layout is deterministic.
 - Spot-check 2–3 "open source document" links from the detail panel, and one
-  rendered reader page (headings, a table or code block, an internal link).
+  rendered reader page (headings, a table or code block, an internal link). In
+  `--linkbase` mode check the composed URLs instead (extension stripped, path
+  appended to the base as expected).
 - Tell the user the file path, the distillation ratio (N pages → M concepts), and
   the viewer's affordances: search (`/`), group show/hide via legend, edge-label
   toggle, list/table view, light/dark theme, click a node for details + source
@@ -109,7 +128,7 @@ Everything lives in `knowledge-graph/` under the user's working directory:
     ├── graph.json               # the designed graph (step 4)
     ├── <name>-map.html          # self-contained interactive map (step 5)
     ├── map-check.png            # optional QA screenshot(s); disposable
-    └── docs/                    # styled reader for source pages (step 5)
+    └── docs/                    # styled reader (step 5; omitted with --linkbase)
         ├── _kg/                 # shared reader css/js + link index
         └── <page path>.html     # one per surveyed page, mirrored layout
 ```
