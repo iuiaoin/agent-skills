@@ -23,10 +23,17 @@ ask with your agent's structured question tool — `AskUserQuestion` (Claude Cod
 `ask_user` (Copilot CLI), `request_user_input` (Codex) — or as a plain question if
 no such tool exists.
 
+**Every artifact goes into `knowledge-graph/` under the user's current working
+directory** (the directory the command was invoked from) — create it if missing.
+Never write outputs to the agent's session/temp/scratch directory: the user must
+be able to find, keep, and open these files after the session ends. The script
+defaults already target `knowledge-graph/`; run them from the user's working
+directory.
+
 ### 2. Survey (scripted)
 
 ```
-python3 <skill>/scripts/survey.py <source-dir> --out survey.json
+python3 <skill>/scripts/survey.py <source-dir> --out knowledge-graph/survey.json
 ```
 
 Prints a digest (entry points, author-curated `.order` ordering, sections by
@@ -48,52 +55,72 @@ the graph honest.
 
 ### 4. Design the graph
 
-Read [references/graph-spec.md](references/graph-spec.md), then write `graph.json`
-(schema, node/edge/group rules, and budgets are all there). Honor any focus the
-user gave in the invocation.
+Read [references/graph-spec.md](references/graph-spec.md), then write
+`knowledge-graph/graph.json` (schema, node/edge/group rules, and budgets are all
+there). Honor any focus the user gave in the invocation.
 
 ### 5. Build (scripted)
 
 ```
-python3 <skill>/scripts/build.py graph.json --survey survey.json -o <name>-knowledge-map.html
+python3 <skill>/scripts/build.py knowledge-graph/graph.json \
+        --survey knowledge-graph/survey.json -o knowledge-graph/<name>-map.html
 ```
 
 The script validates graph.json and refuses to build on errors — fix the file and
-rerun until clean (aim for zero warnings too). Useful flags: `--title`,
-`--subtitle`, `--link-base <url>` to make node links open a published wiki instead
-of local files (default is `file://` links into the surveyed folder).
+rerun until clean (aim for zero warnings too).
+
+By default it also renders **every surveyed page** into `knowledge-graph/docs/`
+as a styled, theme-aware HTML reader (markdown rendered client-side; internal
+wiki links rewritten to other reader pages; images loaded from the source
+folder). Map links open the reader via relative URLs, so the whole
+`knowledge-graph/` folder is portable. Flags: `--docs linked` renders only
+node-linked pages, `--docs none` skips the reader and links straight to source
+files, `--link-base <url>` (with `--docs none`) points links at a published wiki
+instead.
 
 ### 6. Verify, deliver, iterate
 
 - Open the HTML in a browser (macOS `open`, Linux `xdg-open`, Windows `start`).
   If a headless browser / screenshot tool is available, capture the initial view
   and check it: no overlapping labels, groups form readable neighborhoods, the
-  journey edges are traceable. Drag-test is not needed — layout is deterministic.
-- Spot-check 2–3 "open source document" links from the detail panel.
+  journey edges are traceable. Save any QA screenshots into `knowledge-graph/`
+  too (e.g. `knowledge-graph/map-check.png`) and tell the user they are safe to
+  delete. Drag-test is not needed — layout is deterministic.
+- Spot-check 2–3 "open source document" links from the detail panel, and one
+  rendered reader page (headings, a table or code block, an internal link).
 - Tell the user the file path, the distillation ratio (N pages → M concepts), and
   the viewer's affordances: search (`/`), group show/hide via legend, edge-label
   toggle, list/table view, light/dark theme, click a node for details + source
-  link, drag to pin, double-click to release.
+  link, drag to pin, double-click to release; reader pages have breadcrumbs,
+  "◂ Map" / "Raw" links, a contents sidebar, and the same theme toggle.
 - **Iterating** ("add more depth on X", "drop the archive", "rename a group"):
-  edit `graph.json` and rerun step 5 — no need to re-survey unless the source
-  folder itself changed. Deeper content questions may need another `--dir`
-  drilldown or a few more pages read.
+  edit `knowledge-graph/graph.json` and rerun step 5 — no need to re-survey
+  unless the source folder itself changed. Deeper content questions may need
+  another `--dir` drilldown or a few more pages read.
 
 ## Output
 
+Everything lives in `knowledge-graph/` under the user's working directory:
+
 ```
-working-directory/
-├── survey.json                  # full page inventory (step 2)
-├── graph.json                   # the designed graph (step 4)
-└── <name>-knowledge-map.html    # self-contained interactive viewer (step 5)
+<invocation directory>/
+└── knowledge-graph/
+    ├── survey.json              # full page inventory (step 2)
+    ├── graph.json               # the designed graph (step 4)
+    ├── <name>-map.html          # self-contained interactive map (step 5)
+    ├── map-check.png            # optional QA screenshot(s); disposable
+    └── docs/                    # styled reader for source pages (step 5)
+        ├── _kg/                 # shared reader css/js + link index
+        └── <page path>.html     # one per surveyed page, mirrored layout
 ```
 
 ## Notes
 
-- The viewer template lives at `assets/viewer-template.html`; build.py injects the
-  graph payload into it. If a user asks for visual customization (colors, physics,
-  sizing), edit a **copy** of the built HTML or pass different data — change the
-  template itself only for fixes that should apply to every future map.
+- The map template is `assets/viewer-template.html`; the reader is
+  `assets/doc-template.html` + `assets/doc.css` + `assets/doc.js` (copied to
+  `docs/_kg/`). build.py injects all data. If a user asks for visual
+  customization (colors, physics, sizing), edit the **generated** files — change
+  the templates only for fixes that should apply to every future map.
 - Both scripts are Python 3 stdlib only; no installation step.
 - For very large knowledge bases, the survey digest aggregates by section — do not
   read `survey.json` wholesale into context; grep it or use `--dir`.

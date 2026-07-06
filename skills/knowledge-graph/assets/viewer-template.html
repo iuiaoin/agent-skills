@@ -326,7 +326,7 @@ document.getElementById("stat-src").textContent =
 function docHref(node) {
   if (!node.path) return null;
   const enc = node.path.split("/").map(encodeURIComponent).join("/");
-  return (payload.linkBase || "") + enc;
+  return (payload.linkBase || "") + enc + (payload.docSuffix || "");
 }
 
 /* ---------- deterministic layout seed ---------- */

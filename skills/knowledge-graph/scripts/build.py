@@ -5,14 +5,24 @@ Validates graph.json (schema, referential integrity, budgets), then injects it
 into assets/viewer-template.html. On validation errors it prints numbered,
 actionable issues and exits 1 — fix graph.json and rerun. Warnings don't block.
 
+By default it also renders every surveyed source page into a styled HTML reader
+under <out-dir>/docs/, and the map links there (relative links — the whole
+output folder stays self-contained and movable). Pass --docs none to keep raw
+file:// links instead.
+
 Stdlib only. Usage:
-  build.py graph.json [--survey survey.json] [-o knowledge-graph.html]
-           [--title "..."] [--subtitle "..."] [--link-base URL-or-path prefix]
+  build.py graph.json [--survey survey.json] [-o knowledge-graph/knowledge-map.html]
+           [--title "..."] [--subtitle "..."] [--docs all|linked|none]
+           [--link-base URL-or-path prefix]
 
   --survey     survey.json from survey.py; enables node.path validation against
-               the real file list and defaults --link-base to the source folder.
-  --link-base  Prefix for "Open source document" links. Node paths are URL-
-               encoded per segment and appended. Pass "" to keep links relative.
+               the real file list, powers the docs reader, and supplies titles.
+  --docs       all (default): render every surveyed page; linked: only pages
+               referenced by nodes; none: no reader, links point at the source
+               files directly.
+  --link-base  Only used with --docs none: prefix for source links (e.g. a
+               published wiki base URL). Defaults to file:// into the surveyed
+               folder.
 """
 
 import argparse
@@ -20,8 +30,18 @@ import difflib
 import json
 import os
 import re
+import shutil
 import sys
 from datetime import date
+from urllib.parse import quote
+
+sys.dont_write_bytecode = True          # keep the skill folder free of __pycache__
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from survey import normalize_key, pretty_name, strip_ext  # noqa: E402
+
+RENDER_MD = {".md", ".markdown", ".mdx", ".rst", ".adoc"}
+RENDER_PLAIN = {".txt", ".log"}
+ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets")
 
 ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 EDGE_KINDS = {"hierarchy", "flow", "reference"}
@@ -138,19 +158,121 @@ def validate(graph, known_paths):
     return errors, warnings
 
 
+def escape_script(text):
+    """Make arbitrary text safe inside a <script type="text/plain"> element."""
+    return re.sub(r"(?i)</script", lambda m: "<\\/" + m.group(0)[2:], text)
+
+
+def render_docs(survey, out_path, mode, node_paths):
+    """Render source pages into <out-dir>/docs/ and return (count, docs_dir)."""
+    source_dir = survey["source"]
+    out_dir = os.path.dirname(os.path.abspath(out_path))
+    docs_dir = os.path.join(out_dir, "docs")
+    kg_dir = os.path.join(docs_dir, "_kg")
+    os.makedirs(kg_dir, exist_ok=True)
+
+    shutil.copyfile(os.path.join(ASSETS_DIR, "doc.css"), os.path.join(kg_dir, "doc.css"))
+    shutil.copyfile(os.path.join(ASSETS_DIR, "doc.js"), os.path.join(kg_dir, "doc.js"))
+    with open(os.path.join(ASSETS_DIR, "doc-template.html"), encoding="utf-8") as f:
+        template = f.read()
+
+    pages = survey.get("pages", [])
+    if mode == "linked":
+        pages = [p for p in pages if p["path"] in node_paths]
+
+    # link index shared by every reader page (see doc.js resolveTarget)
+    index, base = {}, {}
+    for p in survey.get("pages", []):
+        key = normalize_key(strip_ext(p["path"]))
+        index[key] = p["path"]
+        b = key.rsplit("/", 1)[-1]
+        base[b] = "" if b in base and base[b] != p["path"] else p["path"]
+    base = {k: v for k, v in base.items() if v}
+    if mode == "linked":
+        rendered = {p["path"] for p in pages}
+        index = {k: v for k, v in index.items() if v in rendered}
+        base = {k: v for k, v in base.items() if v in rendered}
+
+    root_url = "file://" + quote(source_dir.rstrip("/"), safe="/:")
+    # ADO wikis keep /.attachments at the wiki REPO root, which may be a parent
+    # of the surveyed folder — find the directory that actually contains it.
+    attach_url = root_url
+    probe = source_dir.rstrip("/")
+    for _ in range(3):
+        if os.path.isdir(os.path.join(probe, ".attachments")):
+            attach_url = "file://" + quote(probe, safe="/:")
+            break
+        parent = os.path.dirname(probe)
+        if parent == probe:
+            break
+        probe = parent
+    index_js = (
+        f"const KG_INDEX={json.dumps(index, ensure_ascii=False)};"
+        f"const KG_BASE={json.dumps(base, ensure_ascii=False)};"
+        f"const KG_ROOT={json.dumps(root_url)};"
+        f"const KG_ATTACH={json.dumps(attach_url)};"
+        f"const KG_ROOT_NAME={json.dumps(normalize_key(os.path.basename(source_dir.rstrip('/'))))};"
+        f"const KG_MAP={json.dumps(os.path.basename(out_path))};"
+    ).replace("</", "<\\/")
+    with open(os.path.join(kg_dir, "index.js"), "w", encoding="utf-8") as f:
+        f.write(index_js)
+
+    count = 0
+    for page in pages:
+        rel = page["path"]
+        src_file = os.path.join(source_dir, rel)
+        try:
+            with open(src_file, encoding="utf-8", errors="replace") as f:
+                text = f.read()
+        except OSError:
+            continue
+        dst = os.path.join(docs_dir, rel + ".html")
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        ext = os.path.splitext(rel)[1].lower()
+        if ext in (".html", ".htm"):
+            with open(dst, "w", encoding="utf-8") as f:
+                f.write(text)                       # already HTML: mirror as-is
+            count += 1
+            continue
+
+        depth = rel.count("/")
+        prefix = "../" * depth
+        segs = rel.split("/")
+        crumbs = "".join(
+            f"{pretty_name(s)}<span class=\"sep\">/</span>" for s in segs[:-1]
+        ) + f"<b>{page['title']}</b>"
+        html = (template
+                .replace("__KG_PREFIX__", prefix)
+                .replace("__KG_DOC_TITLE__", page["title"])
+                .replace("__KG_DOC_PATH__", rel)
+                .replace("__KG_DOC_PLAIN__", "1" if ext in RENDER_PLAIN else "")
+                .replace("__KG_DOC_CRUMBS__", crumbs)
+                .replace("__KG_MAP_HREF__", prefix + "../" + os.path.basename(out_path))
+                .replace("__KG_RAW_HREF__", root_url + "/" + quote(rel, safe="/"))
+                .replace("__KG_DOC_META__",
+                         f"{page['words']:,} words · {os.path.basename(source_dir.rstrip('/'))}")
+                .replace("__KG_DOC_MD__", escape_script(text)))
+        with open(dst, "w", encoding="utf-8") as f:
+            f.write(html)
+        count += 1
+    return count, docs_dir
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("graph", help="graph.json produced by the analysis stage")
     ap.add_argument("--survey", help="survey.json from survey.py (enables path checks)")
-    ap.add_argument("-o", "--out", default="knowledge-graph.html")
+    ap.add_argument("-o", "--out", default="knowledge-graph/knowledge-map.html")
     ap.add_argument("--title", help="Override the graph title")
     ap.add_argument("--subtitle", help="Override the auto subtitle")
+    ap.add_argument("--docs", choices=["all", "linked", "none"], default=None,
+                    help="Render source pages into <out-dir>/docs/ (default: all "
+                         "when a local survey is given, none otherwise)")
     ap.add_argument("--link-base", dest="link_base", default=None,
-                    help="Prefix for source-document links (default: file:// path "
-                         "of the surveyed folder, if --survey is given)")
+                    help="With --docs none: prefix for source-document links "
+                         "(default: file:// path of the surveyed folder)")
     ap.add_argument("--template",
-                    default=os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                         "..", "assets", "viewer-template.html"))
+                    default=os.path.join(ASSETS_DIR, "viewer-template.html"))
     args = ap.parse_args()
 
     graph, e = load_json(args.graph, "graph file")
@@ -188,11 +310,30 @@ def main():
         subtitle = (f"{len(graph.get('nodes', []))} nodes · "
                     f"{len(graph.get('edges', []))} edges")
 
-    link_base = args.link_base
-    if link_base is None and source_dir:
-        link_base = "file://" + source_dir.rstrip("/") + "/"
-    if link_base and not (link_base.endswith("/") or link_base.endswith("=")):
-        link_base += "/"
+    out_parent = os.path.dirname(os.path.abspath(args.out))
+    os.makedirs(out_parent, exist_ok=True)
+
+    docs_mode = args.docs
+    if docs_mode is None:
+        remote = bool(args.link_base and re.match(r"https?://", args.link_base))
+        docs_mode = "none" if (remote or not survey) else "all"
+    if docs_mode != "none" and not survey:
+        sys.exit("error: --docs all/linked requires --survey (it supplies the "
+                 "page list and titles)")
+
+    docs_count = 0
+    if docs_mode != "none":
+        node_paths = {n.get("path") for n in graph.get("nodes", []) if n.get("path")}
+        docs_count, docs_dir = render_docs(survey, args.out, docs_mode, node_paths)
+        link_base = "docs/"
+        doc_suffix = ".html"
+    else:
+        link_base = args.link_base
+        if link_base is None and source_dir:
+            link_base = "file://" + source_dir.rstrip("/") + "/"
+        if link_base and not (link_base.endswith("/") or link_base.endswith("=")):
+            link_base += "/"
+        doc_suffix = ""
 
     payload = {
         "title": title,
@@ -200,6 +341,7 @@ def main():
         "source": source_name,
         "generated": date.today().isoformat(),
         "linkBase": link_base or "",
+        "docSuffix": doc_suffix,
         "graph": {
             "groups": graph.get("groups", []),
             "nodes": graph.get("nodes", []),
@@ -221,6 +363,9 @@ def main():
           f"{len(payload['graph']['edges'])} edges, "
           f"{len(payload['graph']['groups'])} groups"
           + (f" ({len(warnings)} warning(s) above)" if warnings else ""))
+    if docs_count:
+        print(f"Rendered {docs_count} source page(s) into {docs_dir} "
+              f"(map links open the styled reader)")
 
 
 if __name__ == "__main__":
