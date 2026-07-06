@@ -30,6 +30,15 @@ Supports technical sharing talks, architecture reviews, strategy decks, research
 
 📎 [Sample repo](https://github.com/iuiaoin/deck-transformer) · [Live demo](https://iuiaoin.github.io/deck-transformer/)
 
+### [knowledge-graph](https://github.com/iuiaoin/agent-skills/tree/main/skills/knowledge-graph)
+
+Turn any docs folder, wiki, or knowledge base into an interactive knowledge map:
+
+- **`/knowledge-graph <path-to-docs> [focus]`** — survey the folder with a script (titles, sections, cross-page links, `.order` files), distill it into concepts, domains, and reader journeys, then build a **single self-contained HTML file**: a force-directed concept graph with no server, CDN, or network dependency
+- Viewer features — search (`/`), group show/hide via legend, hover to highlight neighborhoods, click a node for a detail panel with summary + link back to the source document, edge-label toggle, accessible table view, light/dark theme
+- Works on plain markdown folders and Azure DevOps-style wikis (URL-encoded filenames, `.order` navigation, full-URL self-links); survey scales to thousands of pages, and generated node links are validated against the real file list before the map builds
+- Iterate cheaply: refinements only edit `graph.json` and rebuild — no re-survey
+
 ## Skill Structure
 
 Each skill follows a standard layout:
