@@ -8,7 +8,7 @@ Produces two things:
      validate node paths and by the agent for targeted lookups.
 
 Stdlib only. Usage:
-  survey.py <source-dir> [--out survey.json] [--dir <subdir>] [--top N]
+  survey.py <source-dir> [--out knowledge-graph/survey.json] [--dir <subdir>] [--top N]
 
   --dir <subdir>   Drill into one section: list its pages with titles and links
                    (prints to stdout; does not rewrite survey.json).
@@ -323,7 +323,8 @@ def print_dir(data, subdir: str):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("source", help="Docs/wiki folder to survey")
-    ap.add_argument("--out", default="survey.json", help="Where to write the JSON inventory")
+    ap.add_argument("--out", default="knowledge-graph/survey.json",
+                    help="Where to write the JSON inventory")
     ap.add_argument("--dir", dest="subdir", help="Drill into one section instead of the digest")
     ap.add_argument("--top", type=int, default=30, help="Rows in digest hub/largest tables")
     args = ap.parse_args()
@@ -337,6 +338,8 @@ def main():
         print_dir(data, args.subdir)
         return
 
+    parent = os.path.dirname(os.path.abspath(args.out))
+    os.makedirs(parent, exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     print_digest(data, args.top)
