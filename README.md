@@ -40,6 +40,8 @@ Turn any docs folder, wiki, or knowledge base into an interactive knowledge map:
 - Works on plain markdown folders and Azure DevOps-style wikis (URL-encoded filenames, `.order` navigation, full-URL self-links); survey scales to thousands of pages, and generated node links are validated against the real file list before the map builds
 - Everything lands in `./knowledge-graph/` in your working directory, with relative links throughout — the folder is portable as a unit; refinements only edit `graph.json` and rebuild, no re-survey
 
+📎 [Sample repo](https://github.com/iuiaoin/knowledge-graph-k8s) · [Live demo](https://iuiaoin.github.io/knowledge-graph-k8s/)
+
 ## Skill Structure
 
 Each skill follows a standard layout:
